@@ -13,10 +13,10 @@ autostartfile = "autostart.sh"
 
 # run settings
 imagefile = "/tmp/thumb.png"
-x = 50
-y = 50
-w = 320
-h = 200
+x = 20
+y = 110
+w = 280
+h = 160
 
 # main
 if __name__ == '__main__':
