@@ -2,6 +2,7 @@
 import os
 import subprocess
 import time
+import json
 
 # files
 m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
@@ -10,14 +11,23 @@ settingsfile = "/tmp/pipsettings.json"
 # main
 if __name__ == '__main__':
 
+  # read settings from file
+  settings = json.load( open(settingsfile, 'r' ))
+
+  # settings
+  ip = settings['ipaddress'] #192.168.144.67
+  port = settings['port'] #9981
+  username = settings['username'] #'hts'
+  password = settings['password'] #'ulster48'
+
   # get m3u channel file from tvheadend server
-  cmd = ['curl', '-u', '%s:%s' % (username, password), 'http://%s:%s/playlist/channels.m3u?profile=pass"' % (ip, port)]
-  
+  cmd = ['curl', '-u', '%s:%s' % (username, password), 'http://%s:%s/playlist/channels.m3u?profile=pass' % (ip, port)]
+
   # run curl command to get channels as m3u file
   subprocess.Popen(cmd,
-    stdout = open('/tmp/pipcurl_stdout.log', 'w'),
+    stdout = open(m3ufile, 'w'),
     stderr = open('/tmp/pipcurl_stderr.log', 'a'))
-  
+
   try:
     chnlinkold = ''
     proc = None
@@ -27,13 +37,11 @@ if __name__ == '__main__':
 
       try:
         # read settings from file
-        settings = json.load( open(settingsfile, 'r' )
-  
+        settings = json.load( open(settingsfile, 'r' ))
+
         # settings
-        ip = settings['ip'] #192.168.144.67
-        port = settings['port'] #9981
-        username = settings['username'] #'hts'
-        password = settings['password'] #'ulster48'
+        username = settings['username']
+        password = settings['password']
 
       except:
         # wait until file is written by the addon
@@ -55,7 +63,7 @@ if __name__ == '__main__':
 
       if chnlink != chnlinkold and chnlink != "":
         # if a new current link is requested generate url with username and password
-        print('New link found: "%s"' % chnlink)
+        #print('New link found: "%s"' % chnlink)
         url = chnlink.replace('http://', 'http://%s:%s@' % (username, password))
 
         # terminate process that may be still running
@@ -84,4 +92,3 @@ if __name__ == '__main__':
       proc.kill()
     except:
       pass
-

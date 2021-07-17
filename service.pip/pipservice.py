@@ -65,7 +65,7 @@ def install_files():
     fobj = open(configpath + autostartfile, "r")
     data = fobj.read()
     fobj.close()
-    if data.find("service.pip/pipffmpeg.sh") == -1:
+    if data.find("pipffmpeg.py") == -1:
       fobj = open(configpath + autostartfile, "a")
 
       out = "\n(\n"
@@ -86,6 +86,10 @@ if __name__ == '__main__':
   xbmc.log('[pip-service] Starting', xbmc.LOGINFO)
   Once = True 
 
+  # get settings
+  settings = get_settings()
+  xbmc.log('[pip-service] Settings: %s' % str(settings), xbmc.LOGINFO)
+
   # start a xbmc monitor
   monitor = xbmc.Monitor()
 
@@ -94,24 +98,9 @@ if __name__ == '__main__':
 
     # get settings
     settings = get_settings()
-    xbmc.log('[pip-service] Settings: %s' % str(settings), xbmc.LOGINFO)
 
     # get current windows ID
     winId = xbmcgui.getCurrentWindowId()
-
-    # get dimensions
-    wwin = winId.getWidth()
-    hwin = winId.getHeight()
-    w = settings['width']
-    h = settings['height']
-    if settings['left']:
-      x = settings['xgap']
-    else:
-      x = wwin - settings['xgap'] - w
-    if settings['top']:
-      y = settings['ygap']
-    else:
-      y = hwin - settings['ygap'] - h
 
     # if video fullscreen window ID
     if winId == 12005:
@@ -130,6 +119,20 @@ if __name__ == '__main__':
           del imgHdl2
         except:
           pass
+
+      # get dimensions
+      wwin = winHdl.getWidth()
+      hwin = winHdl.getHeight()
+      w = settings['width']
+      h = settings['height']
+      if settings['left']:
+        x = settings['xgap']
+      else:
+        x = wwin - settings['xgap'] - w
+      if settings['top']:
+        y = settings['ygap']
+      else:
+        y = hwin - settings['ygap'] - h
 
       # create 1st image control
       imgHdl = xbmcgui.ControlImage(x, y, w, h, imagefile)
@@ -175,4 +178,3 @@ if __name__ == '__main__':
   except:
     pass
   xbmc.log('[refresh-pip] Finished, exiting', xbmc.LOGINFO)
-
