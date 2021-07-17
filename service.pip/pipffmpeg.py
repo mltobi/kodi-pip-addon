@@ -15,10 +15,10 @@ if __name__ == '__main__':
   settings = json.load( open(settingsfile, 'r' ))
 
   # settings
-  ip = settings['ipaddress'] #192.168.144.67
-  port = settings['port'] #9981
-  username = settings['username'] #'hts'
-  password = settings['password'] #'ulster48'
+  ip = settings['ipaddress']
+  port = settings['port']
+  username = settings['username']
+  password = settings['password']
 
   # get m3u channel file from tvheadend server
   cmd = ['curl', '-u', '%s:%s' % (username, password), 'http://%s:%s/playlist/channels.m3u?profile=pass' % (ip, port)]

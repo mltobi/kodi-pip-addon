@@ -34,8 +34,17 @@ def get_settings():
   settings = {}
 
   # get addon settings and convert them to a dictionary
-  settings['top'] = bool(__addon__.getSetting('top'))
-  settings['left'] = bool(__addon__.getSetting('left'))
+  if __addon__.getSetting('top') == 'true':
+    settings['top'] = True
+  else:
+    settings['top'] = False
+
+#  xbmc.log('[pip-service] %s' % __addon__.getSetting('left'), xbmc.LOGINFO)
+  if __addon__.getSetting('left') == 'true':
+    settings['left'] = True
+  else:
+    settings['left'] = False
+
   settings['xgap'] = int(__addon__.getSetting('xgap'))
   settings['ygap'] = int(__addon__.getSetting('ygap'))
   settings['width'] = int(__addon__.getSetting('width'))
@@ -88,7 +97,7 @@ if __name__ == '__main__':
 
   # get settings
   settings = get_settings()
-  xbmc.log('[pip-service] Settings: %s' % str(settings), xbmc.LOGINFO)
+#  xbmc.log('[pip-service] Settings: %s' % str(settings), xbmc.LOGINFO)
 
   # start a xbmc monitor
   monitor = xbmc.Monitor()
@@ -133,6 +142,7 @@ if __name__ == '__main__':
         y = settings['ygap']
       else:
         y = hwin - settings['ygap'] - h
+#      xbmc.log('[pip-service] %s %s %s %s %s %s' % (str(wwin), str(hwin), str(x), str(y), str(w), str(h)), xbmc.LOGINFO)
 
       # create 1st image control
       imgHdl = xbmcgui.ControlImage(x, y, w, h, imagefile)
@@ -177,4 +187,5 @@ if __name__ == '__main__':
     del imgHdl2
   except:
     pass
+  del __addon__
   xbmc.log('[refresh-pip] Finished, exiting', xbmc.LOGINFO)

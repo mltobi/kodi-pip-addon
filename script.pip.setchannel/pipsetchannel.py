@@ -97,4 +97,5 @@ if __name__ == '__main__':
     except KeyError:
       pass
 
+  del __addon__
   xbmc.log('[set-pip-channel] Finished', xbmc.LOGINFO)
