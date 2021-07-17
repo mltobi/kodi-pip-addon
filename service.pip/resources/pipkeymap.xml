@@ -1,0 +1,23 @@
+<keymap>
+  <global>
+    <gamepad>
+    </gamepad>
+
+    <remote>
+    </remote>
+
+    <keyboard>
+      <p mod="longpress">RunScript(script.pip.setchannel)</p>
+    </keyboard>
+
+    <mouse>
+    </mouse>
+
+    <universalremote>
+    </universalremote>
+  </global>
+
+  <Home>
+  </Home>
+
+</keymap>
