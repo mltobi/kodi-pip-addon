@@ -26,25 +26,24 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 ### Function
 * service addon "service.pip"
   * installs keymap and autostart.sh
-    * TODO: append to autostart.sh if file already exists
   * creates windows handle to add an image control
   * two image controls are used to allow update of the capture image every 0.5 seconds
-    * TODO: get new list of channels from tvheadend server using curl
 * script addon "script.pip.setcahnnel"
   * script is called every long key press of "p"
   * a rpccmd is used to get the current channel label of the current shown channel
   * evals channel list file from tvheadend server and creates a lookup dictionary "channel name/label" -> "url link"
-  * starts a ffmpeg process with the current url
-  * kills running process if necessary, e.g. "p" key pressed a second time
+  * write the url to an exchange file
+  * remove the url exchange file if "p" was pressed a second time in order to hide the PIP again
+* pipffmpeg.sh start in autostart.sh
+  * starts a ffmpeg process if a new url was written to the url exchange file
+  * kills running process if url file is empty or it was removed
 
 ### Parameters
-* currently hardcoded ;-)
-  * TODO: position and size of image
-  * TODO: username and password for tvheadend access
-  * TODO: tvheadend server address
+* PIP settings: position and size of image
+* Tvheadend settings: username, password, server address and port
 
 ## Necessary tools
-* ffmpeg version 4.4+
+* ffmpeg version 4.4+ (e.g. from Libreelec addon repo)
 * tvheadend server version 4.3+
 
 ## Restriction
