@@ -1,11 +1,17 @@
 #!/usr/bin/python3
-
 import xbmc
+import xbmcaddon
 import xbmcgui
 import shutil
 import json
 import os
 import subprocess
+
+# addon infos
+__addon__ = xbmcaddon.Addon()
+__addonname__ = __addon__.getAddonInfo('name')
+__icon__ = __addon__.getAddonInfo('icon')
+
 
 # settings
 m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
@@ -85,6 +91,8 @@ if __name__ == '__main__':
       fobj = open('/tmp/channel.pip', 'w')
       fobj.write(chnlink)
       fobj.close()
+
+      xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Start PIP ...", 3000, __icon__))
 
     except KeyError:
       pass

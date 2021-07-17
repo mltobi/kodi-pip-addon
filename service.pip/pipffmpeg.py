@@ -5,12 +5,7 @@ import time
 
 # files
 m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
-
-# settings
-ip = 192.168.144.67
-port = 9981
-username = 'hts'
-password = 'ulster48'
+settingsfile = "/tmp/pipsettings.json"
 
 # main
 if __name__ == '__main__':
@@ -29,6 +24,21 @@ if __name__ == '__main__':
 
     # run until cancelled by user
     while True:
+
+      try:
+        # read settings from file
+        settings = json.load( open(settingsfile, 'r' )
+  
+        # settings
+        ip = settings['ip'] #192.168.144.67
+        port = settings['port'] #9981
+        username = settings['username'] #'hts'
+        password = settings['password'] #'ulster48'
+
+      except:
+        # wait until file is written by the addon
+        time.sleep(1)
+        continue
 
       try:
         # open and read current picture in picture channel
