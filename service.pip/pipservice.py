@@ -4,39 +4,55 @@ import xbmcgui
 import os
 import shutil
 
-# installation settings
+# pathes and files
 resourcepath = "/storage/.kodi/addons/service.pip/resources/"
 configpath = "/storage/.config/"
 keymappath = "/storage/.kodi/userdata/keymaps/"
 keymapfile = "pipkeymap.xml"
 autostartfile = "autostart.sh"
-
-# run settings
 imagefile = "/tmp/thumb.png"
+
+# parameters
 x = 20
 y = 110
 w = 280
 h = 160
 
+
+# install files
+def install_files():
+  if not os.path.exists(keymappath + keymapfile):
+    # add keymap
+    shutil.copy(resourcepath + keymapfile, keymappath + keymapfile)
+
+  if not os.path.exists(configpath + autostartfile):
+    # add autostart.sh
+    shutil.copy(resourcepath + autostartfile, configpath + autostartfile)
+  else:
+    # append autostart.sh if required
+    fobj = open(configpath + autostartfile, "r")
+    data = fobj.read()
+    fobj.close()
+    if data.find("service.pip/pipffmpeg.sh") == -1:
+      fobj = open(configpath + autostartfile, "a")
+
+      out = "\n(\n"
+      out = "%s  sleep 20\n" % out
+      out = "%s  /storage/.kodi/addons/service.pip/pipffmpeg.py\n" % out
+      out = "%s)&\n" % out
+
+      data = fobj.write(out)
+      fobj.close()
+
+
 # main
 if __name__ == '__main__':
 
   # just during installation
-  if not os.path.exists(keymappath + keymapfile):
-    shutil.copy(resourcepath + keymapfile, keymappath + keymapfile)
-
-  if not os.path.exists(configpath + autostartfile):
-    shutil.copy(resourcepath + autostartfile, configpath + autostartfile)
-  else:
-    fobj = open(configpath + autostartfile, "r")
-    data = fobj.read()
-    fobj.close()
-    if data.find("pipffmpeg.sh") == -1:
-      pass
-      # TODO: append autostart.sh
+  install_files()
 
   xbmc.log('[pip-service] Starting', xbmc.LOGINFO)
-  Once = False 
+  Once = True 
 
   # start a xbmc monitor
   monitor = xbmc.Monitor()
@@ -56,11 +72,14 @@ if __name__ == '__main__':
       if Once:
         # get windows handle just once
         winHdl = xbmcgui.Window(winId)
-        Once = True
+        Once = False
       else:
-        # remove 2nd image control
-        winHdl.removeControl(imgHdl2)
-        del imgHdl2
+        try:
+          # remove 2nd image control
+          winHdl.removeControl(imgHdl2)
+          del imgHdl2
+        except:
+          pass
 
       # create 1st image control
       imgHdl = xbmcgui.ControlImage(x, y, w, h, imagefile)
@@ -86,13 +105,11 @@ if __name__ == '__main__':
       try:
         winHdl.removeControl(imgHdl)
         del imgHdl
-        Once = True
       except:
         pass
       try:
         winHdl.removeControl(imgHdl2)
         del imgHdl2
-        Once = True
       except:
         pass
 

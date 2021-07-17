@@ -3,17 +3,29 @@ import os
 import subprocess
 import time
 
+# files
+m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
+
 # settings
+ip = 192.168.144.67
+port = 9981
 username = 'hts'
 password = 'ulster48'
 
 # main
 if __name__ == '__main__':
 
-  chnlinkold = ''
-  proc = None
-
+  # get m3u channel file from tvheadend server
+  cmd = ['curl', '-u', '%s:%s' % (username, password), 'http://%s:%s/playlist/channels.m3u?profile=pass"' % (ip, port)]
+  
+  # run curl command to get channels as m3u file
+  subprocess.Popen(cmd,
+    stdout = open('/tmp/pipcurl_stdout.log', 'w'),
+    stderr = open('/tmp/pipcurl_stderr.log', 'a'))
+  
   try:
+    chnlinkold = ''
+    proc = None
 
     # run until cancelled by user
     while True:
@@ -47,8 +59,8 @@ if __name__ == '__main__':
 
         # create and run ffmpeg process with the defined command
         proc = subprocess.Popen(cmd,
-          stdout = open('/tmp/ffmpeg_stdout.log', 'w'),
-          stderr = open('/tmp/ffmpeg_stderr.log', 'a'))
+          stdout = open('/tmp/pipffmpeg_stdout.log', 'w'),
+          stderr = open('/tmp/pipffmpeg_stderr.log', 'a'))
 
         # remember current link in order to wait for next new channel request
         chnlinkold = chnlink

@@ -8,10 +8,10 @@ import os
 import subprocess
 
 # settings
-iptvfile = '/storage/iptv.m3u'
+m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
 
 
-# parse IPTV m3u file to dict
+# parse m3u file to dict
 def parse_m3u(filename):
 
   name2link = {}
@@ -57,19 +57,28 @@ if __name__ == '__main__':
 
   else:
     # get all channels as dict: number -> http-url-link
-    name2link = parse_m3u(iptvfile)
+    name2link = parse_m3u(m3ufile)
 
     # get information for current player item as json reponse
-    rpccmd = {"jsonrpc": "2.0", "method": "Player.GetItem", "params": { "properties": ["art", "title", "album", "artist", "season", "episode", "duration", "showtitle", "tvshowid", "thumbnail", "file", "fanart","streamdetails"], "playerid": 1 }, "id": "OnPlayGetItem"}
+    rpccmd = {
+      "jsonrpc": "2.0", 
+      "method": "Player.GetItem", 
+      "params": { 
+        "properties": ["art", "title", "album", "artist", "season", "episode", "duration", 
+                       "showtitle", "tvshowid", "thumbnail", "file", "fanart","streamdetails"], 
+        "playerid": 1 }, 
+      "id": "OnPlayGetItem"}
     rpccmd = json.dumps(rpccmd)
     result = xbmc.executeJSONRPC(rpccmd)
     result = json.loads(result)
 
     try:
-      # if a channel label exists create a new channel.pip file that contains the IPTV url
+      # if a channel label exists create a new channel.pip file that contains the url link
       xbmc.log("Enabling new PIP display", xbmc.LOGINFO)
+
       chnname = result['result']['item']['label']
       xbmc.log("Current channel: '%s'" % str(chnname), xbmc.LOGINFO)
+
       chnlink = name2link[chnname]
       xbmc.log("Channel link: '%s'" % str(chnlink), xbmc.LOGINFO)
 
