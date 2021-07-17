@@ -1,4 +1,4 @@
 (
  sleep 20
- /storage/.kodi/addon/service.pip/pipffmpeg.py
+ /storage/.kodi/addons/service.pip/pipffmpeg.py
 )&
