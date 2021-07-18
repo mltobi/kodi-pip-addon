@@ -14,20 +14,6 @@ if __name__ == '__main__':
   # read settings from file
   settings = json.load( open(settingsfile, 'r' ))
 
-  # settings
-  ip = settings['ipaddress']
-  port = settings['port']
-  username = settings['username']
-  password = settings['password']
-
-  # get m3u channel file from tvheadend server
-  cmd = ['curl', '-u', '%s:%s' % (username, password), 'http://%s:%s/playlist/channels.m3u?profile=pass' % (ip, port)]
-
-  # run curl command to get channels as m3u file
-  subprocess.Popen(cmd,
-    stdout = open(m3ufile, 'w'),
-    stderr = open('/tmp/pipcurl_stderr.log', 'a'))
-
   try:
     chnlinkold = ""
     proc = None
@@ -44,8 +30,24 @@ if __name__ == '__main__':
         password = settings['password']
       except:
         # wait until file is written by the addon
-        time.sleep(1)
+        time.sleep(1000)
         continue
+
+      if not os.path.exists(m3ufile):
+        # settings
+        ip = settings['ipaddress']
+        port = settings['port']
+        username = settings['username']
+        password = settings['password']
+
+        # get m3u channel file from tvheadend server
+        cmd = ['curl', '-u', '%s:%s' % (username, password), 'http://%s:%s/playlist/channels.m3u?profile=pass' % (ip, port)]
+
+        # run curl command to get channels as m3u file
+        subprocess.Popen(cmd,
+          stdout = open(m3ufile, 'w'),
+          stderr = open('/tmp/pipcurl_stderr.log', 'a'))
+        time.sleep(3000)
 
       try:
         # open and read current picture in picture channel
@@ -84,7 +86,7 @@ if __name__ == '__main__':
         chnlinkold = chnlink
 
       # repeat check for new link very second
-      time.sleep(1)
+      time.sleep(1000)
 
   except KeyboardInterrupt:
     # if user cancelled the script terminate an existing ffmpeg process
