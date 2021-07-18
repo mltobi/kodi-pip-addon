@@ -2,6 +2,7 @@
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 import shutil
 import json
 import os
@@ -14,7 +15,7 @@ __icon__ = __addon__.getAddonInfo('icon')
 
 
 # settings
-m3ufile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "/resource/data/channels.m3u"
+m3ufile = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resource/data/channels.m3u"
 
 
 # parse m3u file to dict

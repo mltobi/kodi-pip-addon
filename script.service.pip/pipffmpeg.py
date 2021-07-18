@@ -5,7 +5,7 @@ import time
 import json
 
 # files
-m3ufile = 'special://home/.kodi/addons/script.picture.pip/resources/data/channels.m3u'
+m3ufile = '/storage/.kodi/addons/script.picture.pip/resources/data/channels.m3u'
 settingsfile = "/tmp/pipsettings.json"
 
 # main
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     stderr = open('/tmp/pipcurl_stderr.log', 'a'))
 
   try:
-    chnlinkold = ''
+    chnlinkold = ""
     proc = None
 
     # run until cancelled by user
@@ -42,7 +42,6 @@ if __name__ == '__main__':
         # settings
         username = settings['username']
         password = settings['password']
-
       except:
         # wait until file is written by the addon
         time.sleep(1)
@@ -56,6 +55,7 @@ if __name__ == '__main__':
       except FileNotFoundError:
         # if no current channel link is requested terminate last existing ffmpeg process
         chnlink = ""
+        chnlinkold = ""
         try:
           proc.kill()
         except:
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
       if chnlink != chnlinkold and chnlink != "":
         # if a new current link is requested generate url with username and password
-        #print('New link found: "%s"' % chnlink)
+#        print('New link found: "%s"' % chnlink)
         url = chnlink.replace('http://', 'http://%s:%s@' % (username, password))
 
         # terminate process that may be still running

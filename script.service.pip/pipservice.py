@@ -2,6 +2,7 @@
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 import os
 import shutil
 import json
@@ -13,19 +14,16 @@ __icon__ = __addon__.getAddonInfo('icon')
  
 
 # pathes and files
-resourcepath = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "/resources/data/"
-configpath = xbmc.translatePath("special://home/.config/")
-keymappath = xbmc.translatePath("special://home/.kodi/userdata/keymaps/")
+resourcepath = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resources/data/"
+
+keymappath = xbmcvfs.translatePath("special://home/userdata/keymaps/")
 keymapfile = "pipkeymap.xml"
+
+configpath = "/storage/.config/"
 autostartfile = "autostart.sh"
+
 imagefile = "/tmp/thumb.png"
 settingsfile = "/tmp/pipsettings.json"
-
-# parameters
-x = 20
-y = 110
-w = 280
-h = 160
 
 
 # get addon settings
@@ -39,7 +37,6 @@ def get_settings():
   else:
     settings['top'] = False
 
-#  xbmc.log('[pip-service] %s' % __addon__.getSetting('left'), xbmc.LOGINFO)
   if __addon__.getSetting('left') == 'true':
     settings['left'] = True
   else:
@@ -79,7 +76,7 @@ def install_files():
 
       out = "\n(\n"
       out = "%s  sleep 20\n" % out
-      out = "%s  /storage/.kodi/addons/service.pip/pipffmpeg.py\n" % out
+      out = "%s  /storage/.kodi/addons/script.service.pip/pipffmpeg.py\n" % out
       out = "%s)&\n" % out
 
       data = fobj.write(out)
@@ -97,7 +94,6 @@ if __name__ == '__main__':
 
   # get settings
   settings = get_settings()
-#  xbmc.log('[pip-service] Settings: %s' % str(settings), xbmc.LOGINFO)
 
   # start a xbmc monitor
   monitor = xbmc.Monitor()
@@ -142,7 +138,6 @@ if __name__ == '__main__':
         y = settings['ygap']
       else:
         y = hwin - settings['ygap'] - h
-#      xbmc.log('[pip-service] %s %s %s %s %s %s' % (str(wwin), str(hwin), str(x), str(y), str(w), str(h)), xbmc.LOGINFO)
 
       # create 1st image control
       imgHdl = xbmcgui.ControlImage(x, y, w, h, imagefile)
