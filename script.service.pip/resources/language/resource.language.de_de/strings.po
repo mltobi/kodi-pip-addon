@@ -16,6 +16,14 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "Addon Summary"
+msgid "Picture-in-Picture service runs when Kodi starts."
+msgstr "Bild-in-Bild Dienst startet zusammen mit Kodi."
+
+msgctxt "Addon Description"
+msgid "Automatically run Picture-in-Picture service code when Kodi starts."
+msgstr "Started Bild-in-Bild Dienst automatisch, wenn Kodi gestartet wird."
+
 msgctxt "#32000"
 msgid "Position and size"
 msgstr "Position und Größe"
@@ -67,8 +75,4 @@ msgstr "Passwort"
 msgctxt "#32050"
 msgid "Picture-in-Picture Service"
 msgstr "Bild-in-Bild Dienst"
-
-msgctxt "#32051"
-msgid "Automatically run Picture-in-Picture service code when Kodi starts."
-msgstr "Started Bild-in-Bild Dienst automatisch, wenn Kodi gestartet wird."
 

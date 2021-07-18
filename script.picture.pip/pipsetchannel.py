@@ -14,7 +14,7 @@ __icon__ = __addon__.getAddonInfo('icon')
 
 
 # settings
-m3ufile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8') + "/resource/data/channels.m3u"
+m3ufile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "/resource/data/channels.m3u"
 
 
 # parse m3u file to dict
