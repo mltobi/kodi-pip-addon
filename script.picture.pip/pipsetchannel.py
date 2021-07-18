@@ -15,7 +15,7 @@ __icon__ = __addon__.getAddonInfo('icon')
 
 
 # settings
-m3ufile = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resource/data/channels.m3u"
+m3ufile = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resources/data/channels.m3u"
 
 
 # parse m3u file to dict
