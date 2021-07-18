@@ -14,7 +14,7 @@ __icon__ = __addon__.getAddonInfo('icon')
 
 
 # settings
-m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
+m3ufile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8') + "/resource/data/channels.m3u"
 
 
 # parse m3u file to dict
@@ -92,7 +92,7 @@ if __name__ == '__main__':
       fobj.write(chnlink)
       fobj.close()
 
-      xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Start PIP ...", 3000, __icon__))
+      xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Channel: %s" % chnname, 3000, __icon__))
 
     except KeyError:
       pass

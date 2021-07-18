@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+
+<settings>
+    <category label="32000">
+        <setting label="32001" type="bool" id="top" default="true"/>
+        <setting label="32002" type="bool" id="left" default="true"/>
+        <setting label="32003" type="number" id="ygap" default="110"/>
+        <setting label="32004" type="number" id="xgap" default="10"/>
+        <setting label="32005" type="number" id="width" default="280"/>
+        <setting label="32006" type="number" id="height" default="160"/>
+    </category>
+    <category label="32007">
+        <setting label="32008" type="ipaddress" id="ipaddress" default="127.0.0.1"/>
+        <setting label="32009" type="number" id="port" default="9981"/>
+        <setting type="sep"/>
+        <setting label="32010" type="text" id="username" default=""/>
+        <setting label="32011" type="text" id="password" option="hidden" enable="!eq(-1,)" default=""/>
+    </category>
+</settings>

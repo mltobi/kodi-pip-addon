@@ -5,7 +5,7 @@ import time
 import json
 
 # files
-m3ufile = '/storage/.kodi/addons/script.pip.setchannel/channels.m3u'
+m3ufile = 'special://home/.kodi/addons/script.picture.pip/resources/data/channels.m3u'
 settingsfile = "/tmp/pipsettings.json"
 
 # main
