@@ -30,7 +30,7 @@ if __name__ == '__main__':
         password = settings['password']
       except:
         # wait until file is written by the addon
-        time.sleep(1000)
+        time.sleep(1)
         continue
 
       if not os.path.exists(m3ufile):
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         subprocess.Popen(cmd,
           stdout = open(m3ufile, 'w'),
           stderr = open('/tmp/pipcurl_stderr.log', 'a'))
-        time.sleep(3000)
+        time.sleep(3)
 
       try:
         # open and read current picture in picture channel
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         chnlinkold = chnlink
 
       # repeat check for new link very second
-      time.sleep(1000)
+      time.sleep(1)
 
   except KeyboardInterrupt:
     # if user cancelled the script terminate an existing ffmpeg process
