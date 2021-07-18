@@ -13,7 +13,7 @@ __icon__ = __addon__.getAddonInfo('icon')
  
 
 # pathes and files
-resourcepath = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8') + "/resources/data/"
+resourcepath = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "/resources/data/"
 configpath = xbmc.translatePath("special://home/.config/")
 keymappath = xbmc.translatePath("special://home/.kodi/userdata/keymaps/")
 keymapfile = "pipkeymap.xml"
