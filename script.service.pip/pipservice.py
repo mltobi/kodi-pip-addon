@@ -121,7 +121,7 @@ class FFMpeg():
     self.username = username
     self.password = password
     self.proc = ""
-    
+    self.urlold = ""
 
   # check if ffmpeg process is running
   def running(self):
@@ -234,16 +234,16 @@ if __name__ == '__main__':
 
     if monitor.start_ffmpeg():
       # start picture in picture capturing using ffmpeg
-      url, channel = m3u.get_url()
       if not ffmpeg.running():
         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 3000, __icon__))
-      ffmpeg.start(url)
+        url, channel = m3u.get_url()
+        ffmpeg.start(url)
 
     else:
       # stop picture in picture capturing
       if ffmpeg.running():
         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Stopping ...", 3000, __icon__))
-      ffmpeg.stop()
+        ffmpeg.stop()
 
       # remove "old" thumb.png
       if os.path.exists(imagefile):
