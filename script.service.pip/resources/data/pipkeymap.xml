@@ -7,7 +7,7 @@
     </remote>
 
     <keyboard>
-      <p mod="longpress">RunScript(script.pip.setchannel)</p>
+      <p mod="longpress">NotifyAll(service.pip, toggle_pip)</p>
     </keyboard>
 
     <mouse>
