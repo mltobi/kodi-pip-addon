@@ -1,11 +1,11 @@
-# kodi-pip-addon
+# kodi-pip-addon <img src="https://github.com/mltobi/kodi-pip-addon/blob/main/script.service.pip/resources/icon.png" width="50"/>
 
 ## Description
 PIP kodi addon provides a picture in picture feature for television channels from a tvheadend PVR server.
-
+          
 ## Usage
 
-### Show picture in picture
+### Show and hide picture in picture
 * if key "p" is pressed "long" during a television channel is displayed a picture in picture window is created at top left position.
 * if the channels are switch the picture stays at configured position and shows every second a new snapshot image of the previous channel where "p" key was pressed.
 
@@ -13,9 +13,9 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 * if key "p" is pressed a second time the picture in picuture windows is hidden again.
 
 ## Installation
-* copy the one addon folders "service.pip" to "/storage/.kodi/addons"
+* copy the one addon folders "script.service.pip" to "/storage/.kodi/addons"
 * restart kodi
-* after restart, kodi ask you to install the one new found addons
+* after restart, kodi ask you to install the addon
 
 ## How it works
 
@@ -24,14 +24,14 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 
 ### Function
 * service addon "service.pip"
-  * installs keymap
+  * installs keymap "pipkeymap.xml"
   * creates windows handle to add an image control
   * two image controls are used to allow update of the capture image every 0.5 seconds
   * monitor detects a notifyAll event if "p" key is press (see pipkeymap.xml)
-  * a rpccmd is used to get the current channel label of the current shown channel
+  * requests a rpccmd to get the current channel name of the current displaced channel
   * evals channel list file from tvheadend server and creates a lookup dictionary "channel name/label" -> "url link"
-  * start a ffmpeg process with the url (on first "p" press)
-  * stop a ffmpeg process (on seconed "p" press)
+  * starts a ffmpeg process with the url (on first "p" press)
+  * stops a ffmpeg process (on seconed "p" press)
 
 ### Parameters
 * PIP settings: position and size of image
