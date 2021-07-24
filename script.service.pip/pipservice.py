@@ -25,20 +25,23 @@ imagefile = "/tmp/thumb.png"
 # xbmc monitor with on notification handler
 class XBMCMonitor( xbmc.Monitor ):
 
-  flgStartFfmpeg = False
+  def __init__(self):
+    self.keypressed = False
 
-  def start_ffmpeg(self):
-    return self.flgStartFfmpeg
+
+  def get_keystatus(self):
+    keypressed = self.keypressed
+    self.keypressed = False
+    return keypressed
+
 
   def onNotification(self, sender, method, data):
 
-    xbmc.log("Notification detected! %s, %s, %s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
     if sender == "service.pip":
       if method == "Other.toggle_pip":
-        if self.flgStartFfmpeg:
-          self.flgStartFfmpeg = False
-        else:
-          self.flgStartFfmpeg = True
+        xbmc.log("[pip-service] key press detected! %s, %s, %s" % (str(sender), str(method), str(data)), xbmc.LOGINFO)
+        xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
+        self.keypressed = True
 
 
 # handle m3u download, parsing and url request
@@ -57,8 +60,10 @@ class M3U():
 
   def download(self):
 
+    url = 'http://%s:%s/playlist/channels.m3u?profile=pass' % (self.ipaddress, self.port)
+
     # get m3u channel file from tvheadend server
-    cmd = ['curl', '-u', '%s:%s' % (self.username, self.password), 'http://%s:%s/playlist/channels.m3u?profile=pass' % (self.ipaddress, self.port)]
+    cmd = ['curl', '-u', '%s:%s' % (self.username, self.password), url]
 
     # run curl command to get channels as m3u file
     proc = subprocess.Popen(cmd,
@@ -67,6 +72,7 @@ class M3U():
     channels = proc.communicate()
 
     self.channels = channels[0].decode("utf-8").split("\n")
+    xbmc.log("[pip-service] download %d channel urls from %s." % (len(self.channels), url), xbmc.LOGINFO)
 
 
   # parse m3u file to dict
@@ -122,6 +128,7 @@ class FFMpeg():
     self.password = password
     self.proc = ""
     self.urlold = ""
+    self.flgStarted = False
 
   # check if ffmpeg process is running
   def running(self):
@@ -137,16 +144,18 @@ class FFMpeg():
     self.urlold = ""
     if self.running():
       self.proc.kill()
+    self.flgStarted = False
+
+
+  # started status
+  def started(self):
+    return self.flgStarted
 
 
   # start a ffmpeg process
-  def start(self, url):
+  def start(self, url, restart):
     
-    # if no current channel link is requested terminate last existing ffmpeg process
-    if url == "":
-      self.stop()
-
-    if url != self.urlold and url != "":
+    if (url != self.urlold and url != "") or restart:
       # if a new current link is requested generate url with username and password
       urlauth = url.replace('http://', 'http://%s:%s@' % (self.username, self.password))
 
@@ -160,6 +169,7 @@ class FFMpeg():
       self.proc = subprocess.Popen(cmd,
         stdout = open('/tmp/pipffmpeg_stdout.log', 'w'),
         stderr = open('/tmp/pipffmpeg_stderr.log', 'a'))
+      self.flgStarted = True
 
       # remember current link in order to wait for next new channel request
       self.urlold = url
@@ -232,23 +242,28 @@ if __name__ == '__main__':
     # get settings
     settings = get_settings()
 
-    if monitor.start_ffmpeg():
-      # start picture in picture capturing using ffmpeg
-      if not ffmpeg.running():
-        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 3000, __icon__))
-        url, channel = m3u.get_url()
-        ffmpeg.start(url)
-
-    else:
-      # stop picture in picture capturing
-      if ffmpeg.running():
-        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Stopping ...", 3000, __icon__))
+    if monitor.get_keystatus():
+      if ffmpeg.started():
+        # stop picture in picture capturing
         ffmpeg.stop()
+        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Stopping ...", 2000, __icon__))
+        xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
 
-      # remove "old" thumb.png
-      if os.path.exists(imagefile):
-        os.remove(imagefile)
+        # remove "old" thumb.png
+        if os.path.exists(imagefile):
+          os.remove(imagefile)
 
+      else:
+        # start picture in picture capturing using ffmpeg
+        url, channel = m3u.get_url()
+        ffmpeg.start(url, False)
+        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
+        xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
+
+    if ffmpeg.started() and not ffmpeg.running():
+      # restart ffmpeg
+      ffmpeg.start(url, True)
+      xbmc.log("[pip-service] re-started ffmpeg process for %s." % url, xbmc.LOGWARNING)
 
     # get current windows ID
     winId = xbmcgui.getCurrentWindowId()
