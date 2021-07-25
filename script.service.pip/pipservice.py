@@ -137,10 +137,11 @@ controls ffmpeg process
 class FFMpeg():
 
     # constructor
-    def __init__(self, imagefile, username, password):
+    def __init__(self, imagefile, username, password, fps):
         self.imagefile = imagefile
         self.username = username
         self.password = password
+        self.fps = fps
         self.proc = ""
         self.urlold = ""
         self.flgStarted = False
@@ -188,7 +189,7 @@ class FFMpeg():
             self.stop()
 
             # create ffmpeg command to capture very second a new image from the IPTV url
-            cmd = ['ffmpeg', '-i', urlauth, '-ss', '00:00:08.000',  '-f', 'image2', '-vf', 'fps=1,scale=320:-1', '-y', '-update', '1', self.imagefile]
+            cmd = ['ffmpeg', '-i', urlauth, '-ss', '00:00:08.000',  '-f', 'image2', '-vf', 'fps=%d,scale=320:-1' % self.fps, '-y', '-update', '1', self.imagefile]
             
             # create and run ffmpeg process with the defined command
             self.proc = subprocess.Popen(cmd,
@@ -210,11 +211,22 @@ class PIP():
     def __init__(self, imagefile, keymapfile):
         self.imagefile = imagefile
         self.keymapfile = keymapfile
-        self.once = True
+
         self.settings = {}
-        self.winHdl = None
-        self.imgHdl = None
+        self.imgHdl1 = None
         self.imgHdl2 = None
+        self.img1 = False
+        self.img2 = False
+
+        self.x = 20
+        self.y = 110
+        self.w = 320
+        self.h = 260
+        self.fps = 2
+        self.sleeptime = int(1000/self.fps)
+
+        self.winId = 12005
+        self.winHdl = xbmcgui.Window(self.winId)
 
 
     # install keymap file
@@ -248,11 +260,31 @@ class PIP():
         self.settings['ygap'] = int(__addon__.getSetting('ygap'))
         self.settings['width'] = int(__addon__.getSetting('width'))
         self.settings['height'] = int(__addon__.getSetting('height'))
+        self.settings['fps'] = int(__addon__.getSetting('fps'))
         self.settings['ipaddress'] = str(__addon__.getSetting('ipaddress'))
         self.settings['port'] = str(__addon__.getSetting('port'))
         self.settings['username'] = str(__addon__.getSetting('username'))
         self.settings['password'] = str(__addon__.getSetting('password'))
 
+        # define dimensions
+        wwin = self.winHdl.getWidth()
+        hwin = self.winHdl.getHeight()
+        self.w = self.settings['width']
+        self.h = self.settings['height']
+        if self.settings['left']:
+            self.x = self.settings['xgap']
+        else:
+            self.x = wwin - self.settings['xgap'] - self.w
+        if self.settings['top']:
+            self.y = self.settings['ygap']
+        else:
+            self.y = hwin - self.settings['ygap'] - self.h
+
+        # define time between frames
+        self.fps = self.settings['fps']
+        self.sleeptime = int(1000/self.fps)
+
+        # return settings as dictionary
         return self.settings
 
 
@@ -266,70 +298,68 @@ class PIP():
         winId = xbmcgui.getCurrentWindowId()
 
         # if video fullscreen window ID
-        if winId == 12005:
+        if winId == self.winId:
 
-            # wait 0.5 seconds
-            xbmc.sleep(500)
-
-            if self.once:
-                # get windows handle just once
-                self.winHdl = xbmcgui.Window(winId)
-                self.once = False
-            else:
-                try:
-                    # remove 2nd image control
-                    self.winHdl.removeControl(self.imgHdl2)
-                    del self.imgHdl2
-                except:
-                    pass
-
-            # get dimensions
-            wwin = self.winHdl.getWidth()
-            hwin = self.winHdl.getHeight()
-            w = self.settings['width']
-            h = self.settings['height']
-            if self.settings['left']:
-                x = self.settings['xgap']
-            else:
-                x = wwin - self.settings['xgap'] - w
-            if self.settings['top']:
-                y = self.settings['ygap']
-            else:
-                y = hwin - self.settings['ygap'] - h
+            # remove 2nd image control
+            if self.img2:
+                self.winHdl.removeControl(self.imgHdl2)
+                del self.imgHdl2
+                self.img2 = False
 
             # create 1st image control
-            self.imgHdl = xbmcgui.ControlImage(x, y, w, h, self.imagefile)
+            self.imgHdl1 = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
+            self.img1 = True
 
             # add 1st control to windows handle
-            self.winHdl.addControl(self.imgHdl)
+            self.winHdl.addControl(self.imgHdl1)
 
-            # wait 0.5 seconds
-            xbmc.sleep(500)
+            # wait half frame rate
+            xbmc.sleep(self.sleeptime)
 
-            # create 2nd image control
-            self.imgHdl2 = xbmcgui.ControlImage(x, y, w, h, self.imagefile)
+            # create 2nd image control to overlap the 1st image control 
+
+            # This is necessary in order to keep the image show when the 1st control is removed.
+            # The removal is required to reload the same imagefile in order to show the new content.
+            # The content depends on the ffmpeg capture process.
+            # Currently "set_image()" function does not support to reload a image file because
+            # it does not recognize that the content of the image has changed.
+
+            # Unfortunately, this leads to a small flickering of the displayed images because of
+            # the control removals...
+            self.imgHdl2 = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
+            self.img2 = True
 
             # add 2nd control to windows handle
             self.winHdl.addControl(self.imgHdl2)
 
             # remove 1st control
-            try:
-                self.winHdl.removeControl(self.imgHdl)
-                del self.imgHdl
-            except:
-                pass
+            if self.img1:
+                self.winHdl.removeControl(self.imgHdl1)
+                del self.imgHdl1
+                self.img1 = False
+
+            # wait half frame rate
+            xbmc.sleep(self.sleeptime)
+
         else:
             # remove handle if windows ID has changed
-            try:
-                self.winHdl.removeControl(self.imgHdl)
-                del self.imgHdl
-            except:
-                pass
-            try:
+            if self.img2:
                 self.winHdl.removeControl(self.imgHdl2)
                 del self.imgHdl2
-            except:
-                pass
+                self.img2 = False
+
+    def hide_image(self):
+        # remove handle if windows ID has changed
+        if self.img1:
+            self.winHdl.removeControl(self.imgHdl1)
+            del self.imgHdl1
+            self.img1 = False
+        if self.img2:
+            self.winHdl.removeControl(self.imgHdl2)
+            del self.imgHdl2
+            self.img2 = False
+
+
 
 '''
 Main function
@@ -354,7 +384,7 @@ if __name__ == '__main__':
     monitor = XBMCMonitor()
 
     # init ffmpeg
-    ffmpeg = FFMpeg(imagefile, settings['username'], settings['password'])
+    ffmpeg = FFMpeg(imagefile, settings['username'], settings['password'], settings['fps'])
 
 
     # loop until monitor reports an abort
@@ -379,9 +409,11 @@ if __name__ == '__main__':
             ffmpeg.start(url, True)
             xbmc.log("[pip-service] re-started ffmpeg process for %s." % url, xbmc.LOGWARNING)
 
-        # display picture-in-picture if a capture image from ffmpeg process is available
-        pip.show_image()
-
+        if ffmpeg.started():
+            # display picture-in-picture if a capture image from ffmpeg process is available
+            pip.show_image()
+        else:
+            pip.hide_image()
 
     # stop ffmpeg process if running
     ffmpeg.stop()

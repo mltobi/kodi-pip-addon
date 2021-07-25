@@ -14,6 +14,10 @@
 		<license>GNU GENERAL PUBLIC LICENSE Version 2</license>
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
+v2.1.0 (2021-07-25)
+- put picture-in-picture handling in separate class
+- added setting "frames per seconds"
+
 v2.0.0 (2021-07-23)
 - complete refactor "autostart.h", "pipffmepg.py" and "script.picture.pip" not longer required
 - only one service addons necessary

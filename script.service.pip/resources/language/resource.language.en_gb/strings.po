@@ -72,6 +72,10 @@ msgctxt "#32011"
 msgid "Password"
 msgstr ""
 
+msgctxt "#32012"
+msgid "Frames per seconds"
+msgstr ""
+
 msgctxt "#32050"
 msgid "Picture-in-Picture service"
 msgstr ""
