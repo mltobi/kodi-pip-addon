@@ -40,5 +40,6 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 ## Dependencies
 * kodi 19.x (matrix)
 * ffmpeg version 4.4+ (e.g. from Libreelec addon repo)
+* curl
 * tvheadend server version 4.3+
 
