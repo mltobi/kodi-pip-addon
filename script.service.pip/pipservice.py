@@ -8,6 +8,10 @@ import os
 import shutil
 import json
 import subprocess
+from urllib.request import HTTPPasswordMgrWithDefaultRealm
+from urllib.request import HTTPDigestAuthHandler
+from urllib.request import Request
+from urllib.request import build_opener
 
 
 # addon infos
@@ -61,7 +65,7 @@ class M3U():
         self.password = password
         self.ipaddress = ipaddress
         self.port = port
-        self.channels = None
+        self.m3ulines = None
         self.channel2url = {}
         self.url = ""
         self.channel = ""
@@ -72,17 +76,19 @@ class M3U():
 
         url = 'http://%s:%s/playlist/channels.m3u?profile=pass' % (self.ipaddress, self.port)
 
-        # get m3u channel file from tvheadend server
-        cmd = ['curl', '-u', '%s:%s' % (self.username, self.password), url]
+        # urllib request with Digest auth
+        hndlr_chain = []
+        mgr = HTTPPasswordMgrWithDefaultRealm()
+        mgr.add_password(None, url, self.username, self.password)
+        hndlr_chain.append(HTTPDigestAuthHandler(mgr))
 
-        # run curl command to get channels as m3u file
-        proc = subprocess.Popen(cmd,
-          stdout = subprocess.PIPE,
-          stderr = open('/tmp/pipcurl_stderr.log', 'a'))
-        channels = proc.communicate()
+        director = build_opener(*hndlr_chain)
+        req = Request(url, headers={})
+        result = director.open(req)
 
-        self.channels = channels[0].decode("utf-8").split("\n")
-        xbmc.log("[pip-service] download %d channel urls from %s." % (len(self.channels), url), xbmc.LOGINFO)
+        # read result ans split it to lines
+        self.m3ulines = result.read().decode("utf-8").split("\n")
+        xbmc.log("[pip-service] download m3u file with %d lines from %s." % (len(self.m3ulines), url), xbmc.LOGINFO)
 
 
     # parse m3u file to dict
@@ -91,7 +97,7 @@ class M3U():
         # #EXTINF:-1 logo="http://192.168.144.67:9981/imagecache/13" tvg-id="efa6b645f9399cc41becd20cceb0d2c2" tvg-chno="1",Das Erste HD
         # http://192.168.144.67:9981/stream/channelid/1169598191?profile=pass
 
-        for i, line in enumerate(self.channels):
+        for i, line in enumerate(self.m3ulines):
             # loop line list
             if line.find("tvg-chno=") != -1:
                 # if line contains the channel label extract it
@@ -100,7 +106,9 @@ class M3U():
                 if len(parts) > 1:
                     # create a loopup dictionary key=channel-label and value=url-link
                     name = parts[1].replace('\n', '')
-                    self.channel2url[name] = self.channels[i+1].replace('\n', '')
+                    self.channel2url[name] = self.m3ulines[i+1].replace('\n', '')
+
+        xbmc.log("[pip-service] parsed %d channels." % len(self.channel2url), xbmc.LOGINFO)
 
 
     # get current active channel the url of it
@@ -298,6 +306,16 @@ class PIP():
         winId = xbmcgui.getCurrentWindowId()
 
         # if video fullscreen window ID
+        if winId == self.winId+1:
+            if not self.img1:
+                self.imgHdl1 = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
+                xbmc.log("[pip-service] test: %s, %d, %d, %d, %d, %s" % (str(self.img1), self.x, self.y, self.w, self.h, self.imagefile), xbmc.LOGINFO)
+                self.img1 = True
+            self.imgHdl1.setImage('')
+            xbmc.sleep(100)
+            self.imgHdl1.setImage(self.imagefile)#, useCache = False)
+
+        # if video fullscreen window ID
         if winId == self.winId:
 
             # remove 2nd image control
@@ -347,6 +365,7 @@ class PIP():
                 self.winHdl.removeControl(self.imgHdl2)
                 del self.imgHdl2
                 self.img2 = False
+
 
     def hide_image(self):
         # remove handle if windows ID has changed
