@@ -9,10 +9,7 @@ import shutil
 import json
 import subprocess
 import urllib
-from urllib.request import HTTPPasswordMgrWithDefaultRealm
-from urllib.request import HTTPDigestAuthHandler
 from urllib.request import Request
-from urllib.request import build_opener
 
 
 # addon infos
@@ -81,10 +78,10 @@ class M3U():
         hndlr_chain = []
         mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         mgr.add_password(None, url, self.username, self.password)
-        hndlr_chain.append(HTTPDigestAuthHandler(mgr))
+        hndlr_chain.append(urllib.request.HTTPDigestAuthHandler(mgr))
 
         # build request
-        director = build_opener(*hndlr_chain)
+        director = urllib.request.build_opener(*hndlr_chain)
         req = Request(url, headers={})
 
         try:
@@ -112,7 +109,7 @@ class M3U():
                 # loop line list
                 if line.find("logo=") != -1 and line.find("tvg-id=") != -1 and line.find("tvg-chno=") != -1:
                     # split line by tvg-chno
-                    parts = line.split("tvg-chno1")
+                    parts = line.split("tvg-chno")
 
                     if len(parts) > 1:
                         # split line by '",' to get channel name
