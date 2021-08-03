@@ -8,6 +8,7 @@ import os
 import shutil
 import json
 import subprocess
+import urllib
 from urllib.request import HTTPPasswordMgrWithDefaultRealm
 from urllib.request import HTTPDigestAuthHandler
 from urllib.request import Request
@@ -78,17 +79,25 @@ class M3U():
 
         # urllib request with Digest auth
         hndlr_chain = []
-        mgr = HTTPPasswordMgrWithDefaultRealm()
+        mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         mgr.add_password(None, url, self.username, self.password)
         hndlr_chain.append(HTTPDigestAuthHandler(mgr))
 
+        # build request
         director = build_opener(*hndlr_chain)
         req = Request(url, headers={})
-        result = director.open(req)
 
-        # read result ans split it to lines
-        self.m3ulines = result.read().decode("utf-8").split("\n")
-        xbmc.log("[pip-service] download m3u file with %d lines from %s." % (len(self.m3ulines), url), xbmc.LOGINFO)
+        try:
+            # get request
+            result = director.open(req)
+
+            # read result ans split it to lines
+            self.m3ulines = result.read().decode("utf-8").split("\n")
+            xbmc.log("[pip-service] download m3u file with %d lines from %s." % (len(self.m3ulines), url), xbmc.LOGINFO)
+        except urllib.error.HTTPError:
+            xbmc.log("[pip-service] download of m3u file failed - HTTP error 403: forbidden to access %s." % (url), xbmc.LOGWARNING)
+        except urllib.error.URLError:
+            xbmc.log("[pip-service] download of m3u file failed - connection refused to %s." % (url), xbmc.LOGWARNING)
 
 
     # parse m3u file to dict
@@ -97,18 +106,29 @@ class M3U():
         # #EXTINF:-1 logo="http://192.168.144.67:9981/imagecache/13" tvg-id="efa6b645f9399cc41becd20cceb0d2c2" tvg-chno="1",Das Erste HD
         # http://192.168.144.67:9981/stream/channelid/1169598191?profile=pass
 
-        for i, line in enumerate(self.m3ulines):
-            # loop line list
-            if line.find("tvg-chno=") != -1:
-                # if line contains the channel label extract it
-                parts = line.split("\",")
+        self.channel2url = {}
+        if self.m3ulines != None:
+            for i, line in enumerate(self.m3ulines):
+                # loop line list
+                if line.find("logo=") != -1 and line.find("tvg-id=") != -1 and line.find("tvg-chno=") != -1:
+                    # split line by tvg-chno
+                    parts = line.split("tvg-chno1")
 
-                if len(parts) > 1:
-                    # create a loopup dictionary key=channel-label and value=url-link
-                    name = parts[1].replace('\n', '')
-                    self.channel2url[name] = self.m3ulines[i+1].replace('\n', '')
+                    if len(parts) > 1:
+                        # split line by '",' to get channel name
+                        parts = parts[1].split("\",")
 
-        xbmc.log("[pip-service] parsed %d channels." % len(self.channel2url), xbmc.LOGINFO)
+                        if len(parts) > 1:
+                            # create a loopup dictionary key=channel-name and value=url-link
+                            name = parts[1].replace('\n', '')
+                            self.channel2url[name] = self.m3ulines[i+1].replace('\n', '')
+
+            xbmc.log("[pip-service] parsed %d channels." % len(self.channel2url), xbmc.LOGINFO)
+            if len(self.channel2url) == 0:
+                xbmc.log("[pip-service] check m3u file format to be:", xbmc.LOGDEBUG)
+                xbmc.log("[pip-service] #EXTINF:-1 logo=\"...\" tvg-id=\"...\" tvg-chno=\"...\",[channel name]", xbmc.LOGDEBUG)
+                xbmc.log("[pip-service] http://192.168.1.1:9981/stream/channelid/[....]?profile=pass", xbmc.LOGDEBUG)
+
 
 
     # get current active channel the url of it
@@ -419,9 +439,13 @@ if __name__ == '__main__':
             else:
                 # start picture in picture capturing using ffmpeg
                 url, channel = m3u.get_url()
-                ffmpeg.start(url, False)
-                xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
-                xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
+                if url == "":
+                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 1000, __icon__))
+                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Not started ...", 1000, __icon__))
+                else:
+                    ffmpeg.start(url, False)
+                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
+                    xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
 
         if ffmpeg.started() and not ffmpeg.running():
             # restart ffmpeg

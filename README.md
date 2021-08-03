@@ -19,9 +19,6 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 
 ## How it works
 
-### Installation
-* a user keymap file "pipkeymap.xml" is added to "/storage/.kodi/userdata/keymaps"
-
 ### Function
 * service addon "service.pip"
   * installs keymap "pipkeymap.xml"
@@ -36,6 +33,13 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 ### Parameters
 * PIP settings: position and size of image
 * Tvheadend settings: username, password, server address and port
+
+### M3U file format
+The m3u file downloaded from tvheadend server needs to have the following format:
+```
+#EXTINF:-1 logo="..." tvg-id="..." tvg-chno="1",Das Erste HD
+http://192.168.1.1:9981/stream/channelid/....?profile=pass
+```
 
 ## Dependencies
 * kodi 19.x (matrix)
