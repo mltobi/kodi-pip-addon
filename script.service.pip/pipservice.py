@@ -8,6 +8,7 @@ import os
 import shutil
 import json
 import subprocess
+import uuid
 import urllib
 from urllib.request import Request
 
@@ -16,16 +17,16 @@ from urllib.request import Request
 __addon__ = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __icon__ = __addon__.getAddonInfo('icon')
- 
+
 
 # pathes and files
 keymapfile = "pipkeymap.xml"
 imagefile = "/tmp/thumb.png"
 
 
-''' 
+'''
 Class XBMCMonitor
-xbmc monitor with on notification handler 
+xbmc monitor with on notification handler
 '''
 class XBMCMonitor( xbmc.Monitor ):
 
@@ -133,12 +134,12 @@ class M3U():
 
         # get information for current player item as json reponse
         rpccmd = {
-          "jsonrpc": "2.0", 
-          "method": "Player.GetItem", 
-          "params": { 
-            "properties": ["art", "title", "album", "artist", "season", "episode", "duration", 
-                            "showtitle", "tvshowid", "thumbnail", "file", "fanart","streamdetails"], 
-            "playerid": 1 }, 
+          "jsonrpc": "2.0",
+          "method": "Player.GetItem",
+          "params": {
+            "properties": ["art", "title", "album", "artist", "season", "episode", "duration",
+                            "showtitle", "tvshowid", "thumbnail", "file", "fanart","streamdetails"],
+            "playerid": 1 },
           "id": "OnPlayGetItem"}
         rpccmd = json.dumps(rpccmd)
         result = xbmc.executeJSONRPC(rpccmd)
@@ -205,7 +206,7 @@ class FFMpeg():
 
     # start a ffmpeg process
     def start(self, url, restart):
-        
+
         if (url != self.urlold and url != "") or restart:
             # if a new current link is requested generate url with username and password
             urlauth = url.replace('http://', 'http://%s:%s@' % (self.username, self.password))
@@ -215,7 +216,7 @@ class FFMpeg():
 
             # create ffmpeg command to capture very second a new image from the IPTV url
             cmd = ['ffmpeg', '-i', urlauth, '-ss', '00:00:08.000',  '-f', 'image2', '-vf', 'fps=%d,scale=320:-1' % self.fps, '-y', '-update', '1', self.imagefile]
-            
+
             # create and run ffmpeg process with the defined command
             self.proc = subprocess.Popen(cmd,
               stdout = open('/tmp/pipffmpeg_stdout.log', 'w'),
@@ -236,19 +237,16 @@ class PIP():
     def __init__(self, imagefile, keymapfile):
         self.imagefile = imagefile
         self.keymapfile = keymapfile
+        self.uuidfile = None
 
         self.settings = {}
-        self.imgHdl1 = None
-        self.imgHdl2 = None
-        self.img1 = False
-        self.img2 = False
+        self.imgHdl = None
+        self.img = False
 
         self.x = 20
         self.y = 110
         self.w = 320
         self.h = 260
-        self.fps = 2
-        self.sleeptime = int(1000/self.fps)
 
         self.winId = 12005
         self.winHdl = xbmcgui.Window(self.winId)
@@ -305,10 +303,6 @@ class PIP():
         else:
             self.y = hwin - self.settings['ygap'] - self.h
 
-        # define time between frames
-        self.fps = self.settings['fps']
-        self.sleeptime = int(1000/self.fps)
-
         # return settings as dictionary
         return self.settings
 
@@ -323,77 +317,33 @@ class PIP():
         winId = xbmcgui.getCurrentWindowId()
 
         # if video fullscreen window ID
-        if winId == self.winId+1:
-            if not self.img1:
-                self.imgHdl1 = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
-                xbmc.log("[pip-service] test: %s, %d, %d, %d, %d, %s" % (str(self.img1), self.x, self.y, self.w, self.h, self.imagefile), xbmc.LOGINFO)
-                self.img1 = True
-            self.imgHdl1.setImage('')
-            xbmc.sleep(100)
-            self.imgHdl1.setImage(self.imagefile)#, useCache = False)
+        if winId == self.winId and os.path.exists(self.imagefile):
+            if not self.img:
+                self.imgHdl = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
+                self.imgHdl.setAnimations([('visible', 'effect=fade end=100 time=300 delay=300',)])
+                self.winHdl.addControl(self.imgHdl)
+                self.img = True
 
-        # if video fullscreen window ID
-        if winId == self.winId:
+            # add to latest captured image a unique id in order to force reload the image via setImage function
+            olduuidfile = self.uuidfile
+            self.uuidfile = self.imagefile.replace(".png", "%s.png" % str(uuid.uuid4()))
+            shutil.copy(self.imagefile, self.uuidfile)
 
-            # remove 2nd image control
-            if self.img2:
-                self.winHdl.removeControl(self.imgHdl2)
-                del self.imgHdl2
-                self.img2 = False
+            # set new image file
+            self.imgHdl.setImage(self.uuidfile, useCache = False)
 
-            # create 1st image control
-            self.imgHdl1 = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
-            self.img1 = True
-
-            # add 1st control to windows handle
-            self.winHdl.addControl(self.imgHdl1)
-
-            # wait half frame rate
-            xbmc.sleep(self.sleeptime)
-
-            # create 2nd image control to overlap the 1st image control 
-
-            # This is necessary in order to keep the image show when the 1st control is removed.
-            # The removal is required to reload the same imagefile in order to show the new content.
-            # The content depends on the ffmpeg capture process.
-            # Currently "set_image()" function does not support to reload a image file because
-            # it does not recognize that the content of the image has changed.
-
-            # Unfortunately, this leads to a small flickering of the displayed images because of
-            # the control removals...
-            self.imgHdl2 = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
-            self.img2 = True
-
-            # add 2nd control to windows handle
-            self.winHdl.addControl(self.imgHdl2)
-
-            # remove 1st control
-            if self.img1:
-                self.winHdl.removeControl(self.imgHdl1)
-                del self.imgHdl1
-                self.img1 = False
-
-            # wait half frame rate
-            xbmc.sleep(self.sleeptime)
-
-        else:
-            # remove handle if windows ID has changed
-            if self.img2:
-                self.winHdl.removeControl(self.imgHdl2)
-                del self.imgHdl2
-                self.img2 = False
+            # remove already set image file if it exists
+            if olduuidfile != None:
+                if os.path.exists(olduuidfile):
+                    os.remove(olduuidfile)
 
 
     def hide_image(self):
         # remove handle if windows ID has changed
-        if self.img1:
-            self.winHdl.removeControl(self.imgHdl1)
-            del self.imgHdl1
-            self.img1 = False
-        if self.img2:
-            self.winHdl.removeControl(self.imgHdl2)
-            del self.imgHdl2
-            self.img2 = False
+        if self.img:
+            self.winHdl.removeControl(self.imgHdl)
+            del self.imgHdl
+            self.img = False
 
 
 
@@ -415,7 +365,7 @@ if __name__ == '__main__':
     # download and parse channels
     m3u.download()
     m3u.parse()
-    
+
     # start a xbmc monitor
     monitor = XBMCMonitor()
 
@@ -424,7 +374,8 @@ if __name__ == '__main__':
 
 
     # loop until monitor reports an abort
-    while not monitor.waitForAbort(1):
+    sleeptime = float(1/settings['fps'])
+    while not monitor.waitForAbort(sleeptime):
 
         if monitor.get_keystatus():
             if ffmpeg.started():

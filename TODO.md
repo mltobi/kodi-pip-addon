@@ -9,6 +9,5 @@
 ## If required or available
 
 * add support for other PVRs
-* improve drawing of images if a better kodi interface is found or get available
 
 

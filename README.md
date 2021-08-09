@@ -22,12 +22,12 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 ### Function
 * service addon "service.pip"
   * installs keymap "pipkeymap.xml"
-  * creates windows handle to add an image control
-  * two image controls are used to allow update of the capture image every 0.5 seconds
   * monitor detects a notifyAll event if "p" key is press (see pipkeymap.xml)
   * requests a rpccmd to get the current channel name of the current displaced channel
   * evals channel list file from tvheadend server and creates a lookup dictionary "channel name/label" -> "url link"
   * starts a ffmpeg process with the url (on first "p" press)
+  * creates windows handle to add an image control
+  * image control is update with new captured images
   * stops a ffmpeg process (on seconed "p" press)
 
 ### Parameters
