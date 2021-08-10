@@ -19,9 +19,9 @@ __addonname__ = __addon__.getAddonInfo('name')
 __icon__ = __addon__.getAddonInfo('icon')
 
 
-# pathes and files
-keymapfile = "pipkeymap.xml"
-imagefile = "/tmp/thumb.png"
+# files
+keymapfilename = "pipkeymap.xml"
+imagefilename = "thumb.png"
 
 
 '''
@@ -59,7 +59,7 @@ handles m3u download, parsing and url request
 class M3U():
 
     # constructor
-    def __init__(self, username, password, ipaddress, port):
+    def __init__(self, username, password, ipaddress, port, profile):
         self.username = username
         self.password = password
         self.ipaddress = ipaddress
@@ -68,12 +68,13 @@ class M3U():
         self.channel2url = {}
         self.url = ""
         self.channel = ""
+        self.profile = profile
 
 
     # download m3u as pipe from tvheadend server
     def download(self):
 
-        url = 'http://%s:%s/playlist/channels.m3u?profile=pass' % (self.ipaddress, self.port)
+        url = 'http://%s:%s/playlist/channels.m3u?profile=%s' % (self.ipaddress, self.port, self.profile)
 
         # urllib request with Digest auth
         hndlr_chain = []
@@ -125,7 +126,7 @@ class M3U():
             if len(self.channel2url) == 0:
                 xbmc.log("[pip-service] check m3u file format to be:", xbmc.LOGDEBUG)
                 xbmc.log("[pip-service] #EXTINF:-1 logo=\"...\" tvg-id=\"...\" tvg-chno=\"...\",[channel name]", xbmc.LOGDEBUG)
-                xbmc.log("[pip-service] http://192.168.1.1:9981/stream/channelid/[....]?profile=pass", xbmc.LOGDEBUG)
+                xbmc.log("[pip-service] http://192.168.1.1:9981/stream/channelid/[....]?profile=%s" % self.profile, xbmc.LOGDEBUG)
 
 
 
@@ -163,11 +164,13 @@ controls ffmpeg process
 class FFMpeg():
 
     # constructor
-    def __init__(self, imagefile, username, password, fps):
-        self.imagefile = imagefile
+    def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions):
+        self.imagefile = tmpfolder + "/" + imagefilename
+        self.tmpfolder = tmpfolder
         self.username = username
         self.password = password
         self.fps = fps
+        self.addopts = addoptions
         self.proc = ""
         self.urlold = ""
         self.flgStarted = False
@@ -216,11 +219,14 @@ class FFMpeg():
 
             # create ffmpeg command to capture very second a new image from the IPTV url
             cmd = ['ffmpeg', '-i', urlauth, '-ss', '00:00:08.000',  '-f', 'image2', '-vf', 'fps=%d,scale=320:-1' % self.fps, '-y', '-update', '1', self.imagefile]
+            for item in self.addopts.split(' '):
+                if item != '':
+                    cmd.append(item)
 
             # create and run ffmpeg process with the defined command
             self.proc = subprocess.Popen(cmd,
-              stdout = open('/tmp/pipffmpeg_stdout.log', 'w'),
-              stderr = open('/tmp/pipffmpeg_stderr.log', 'a'))
+              stdout = open('%s/pipffmpeg_stdout.log' % self.tmpfolder, 'w'),
+              stderr = open('%s/pipffmpeg_stderr.log' % self.tmpfolder, 'a'))
             self.flgStarted = True
 
             # remember current link in order to wait for next new channel request
@@ -234,8 +240,10 @@ controls display of picture-in-picture
 class PIP():
 
     # constructor
-    def __init__(self, imagefile, keymapfile):
-        self.imagefile = imagefile
+    def __init__(self, imagefilename, keymapfile):
+
+        self.imagefilename = imagefilename
+        self.imagefile = "/tmp/" + imagefilename
         self.keymapfile = keymapfile
         self.uuidfile = None
 
@@ -288,6 +296,11 @@ class PIP():
         self.settings['port'] = str(__addon__.getSetting('port'))
         self.settings['username'] = str(__addon__.getSetting('username'))
         self.settings['password'] = str(__addon__.getSetting('password'))
+        self.settings['profile'] = str(__addon__.getSetting('profile'))
+        self.settings['tmpfolder'] = str(__addon__.getSetting('tmpfolder'))
+        self.settings['ffmpegopts'] = str(__addon__.getSetting('ffmpegopts'))
+
+        self.imagefile = "%s/%s" % (self.settings['tmpfolder'], self.imagefilename)
 
         # define dimensions
         wwin = self.winHdl.getWidth()
@@ -354,13 +367,13 @@ if __name__ == '__main__':
 
     # init pip
     xbmc.log('[pip-service] Starting', xbmc.LOGINFO)
-    pip = PIP(imagefile, keymapfile)
+    pip = PIP(imagefilename, keymapfilename)
 
     # get settings
     settings = pip.get_settings()
 
     # init m3u
-    m3u = M3U(settings['username'], settings['password'], settings['ipaddress'], settings['port'])
+    m3u = M3U(settings['username'], settings['password'], settings['ipaddress'], settings['port'], settings['profile'])
 
     # download and parse channels
     m3u.download()
@@ -370,7 +383,7 @@ if __name__ == '__main__':
     monitor = XBMCMonitor()
 
     # init ffmpeg
-    ffmpeg = FFMpeg(imagefile, settings['username'], settings['password'], settings['fps'])
+    ffmpeg = FFMpeg(imagefilename, settings['tmpfolder'], settings['username'], settings['password'], settings['fps'], settings['ffmpegopts'])
 
 
     # loop until monitor reports an abort

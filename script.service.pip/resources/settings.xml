@@ -8,13 +8,18 @@
         <setting label="32004" type="number" id="xgap" default="10"/>
         <setting label="32005" type="number" id="width" default="280"/>
         <setting label="32006" type="number" id="height" default="160"/>
-        <setting label="32012" type="slider" id="fps" default="10" range="1,25"/>
+        <setting label="32012" type="slider" id="fps" default="1" range="1,25"/>
     </category>
     <category label="32007">
         <setting label="32008" type="ipaddress" id="ipaddress" default="127.0.0.1"/>
         <setting label="32009" type="number" id="port" default="9981"/>
+        <setting label="32013" type="text" id="profile" default="matroska"/>
         <setting type="sep"/>
         <setting label="32010" type="text" id="username" default=""/>
         <setting label="32011" type="text" id="password" option="hidden" enable="!eq(-1,)" default=""/>
+    </category>
+    <category label="32015">
+        <setting label="32016" type="text" id="ffmpegopts" default=""/>
+        <setting label="32014" type="text" id="tmpfolder" default="/tmp"/>
     </category>
 </settings>

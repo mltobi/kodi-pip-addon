@@ -76,6 +76,22 @@ msgctxt "#32012"
 msgid "Frames per seconds"
 msgstr ""
 
+msgctxt "#32013"
+msgid "Profile e.g. matroska"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Temporary folder (on a RAM disc)"
+msgstr ""
+
+msgctxt "#32015"
+msgid "FFMPEG"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Additional command line options"
+msgstr ""
+
 msgctxt "#32050"
 msgid "Picture-in-Picture service"
 msgstr ""
