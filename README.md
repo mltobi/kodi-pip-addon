@@ -44,5 +44,5 @@ http://192.168.1.1:9981/stream/channelid/....?profile=pass
 ## Dependencies
 * kodi 19.x (matrix)
 * ffmpeg version 4.4+ (e.g. from Libreelec addon repo)
-* tvheadend server version 4.3+
+* tvheadend server version 4.3+ with the possibiltiy of more parallel streams, e.g. via IPTV or more than two DVB inputs -> TV adapters
 
