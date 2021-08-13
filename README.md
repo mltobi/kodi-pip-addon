@@ -46,3 +46,16 @@ http://192.168.1.1:9981/stream/channelid/....?profile=pass
 * ffmpeg version 4.4+ (e.g. from Libreelec addon repo)
 * tvheadend server version 4.3+ with the possibiltiy of more parallel streams, e.g. via IPTV or more than two DVB inputs -> TV adapters
 
+
+## Tested on following environments
+* Ubuntu 20.04.2 LTS 
+  * kodi 20.0-ALPHA1 (19.90.101) Git:20210721-3fdf4542d2
+  * ffmpeg 4.2.4-1ubuntu0.1
+  
+  --> runs good
+* Raspberry Pi4
+  * LibreELEC (community): nightly-20210524-40e1be9 (RPi4.arm)
+  * kodi 19.1 (19.1.0) Git:20210524-eea10b669c
+  * ffmpeg version 4.4
+  
+  --> ffmpeg stream receive problems resulting in corrupted captured images
