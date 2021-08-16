@@ -58,4 +58,4 @@ http://192.168.1.1:9981/stream/channelid/....?profile=pass
   * kodi 19.1 (19.1.0) Git:20210524-eea10b669c
   * ffmpeg version 4.4
   
-  --> ffmpeg stream receive problems resulting in corrupted captured images
+  --> runs good

@@ -164,13 +164,14 @@ controls ffmpeg process
 class FFMpeg():
 
     # constructor
-    def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions):
+    def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions, width):
         self.imagefile = tmpfolder + "/" + imagefilename
         self.tmpfolder = tmpfolder
         self.username = username
         self.password = password
         self.fps = fps
         self.addopts = addoptions
+        self.width = width
         self.proc = ""
         self.urlold = ""
         self.flgStarted = False
@@ -218,7 +219,19 @@ class FFMpeg():
             self.stop()
 
             # create ffmpeg command to capture very second a new image from the IPTV url
-            cmd = ['ffmpeg', '-i', urlauth, '-ss', '00:00:08.000',  '-f', 'image2', '-vf', 'fps=%d,scale=320:-1' % self.fps, '-y', '-update', '1', self.imagefile]
+            cmd = ['ffmpeg',
+                   '-nostdin',
+                   '-i', urlauth,
+                   '-an',
+                   '-ss', '00:00:08.000',
+                   '-f', 'image2',
+                   '-vf', 'fps=%d,scale=%d:-1' % (self.fps, self.width),
+                   '-qscale:v', '10',
+                   '-y',
+                   '-update', '1',
+                   '-vcodec', 'mjpeg',
+                   self.imagefile]
+
             for item in self.addopts.split(' '):
                 if item != '':
                     cmd.append(item)
@@ -373,7 +386,11 @@ if __name__ == '__main__':
     settings = pip.get_settings()
 
     # init m3u
-    m3u = M3U(settings['username'], settings['password'], settings['ipaddress'], settings['port'], settings['profile'])
+    m3u = M3U(settings['username'],
+              settings['password'],
+              settings['ipaddress'],
+              settings['port'],
+              settings['profile'])
 
     # download and parse channels
     m3u.download()
@@ -383,7 +400,13 @@ if __name__ == '__main__':
     monitor = XBMCMonitor()
 
     # init ffmpeg
-    ffmpeg = FFMpeg(imagefilename, settings['tmpfolder'], settings['username'], settings['password'], settings['fps'], settings['ffmpegopts'])
+    ffmpeg = FFMpeg(imagefilename,
+                    settings['tmpfolder'],
+                    settings['username'],
+                    settings['password'],
+                    settings['fps'],
+                    settings['ffmpegopts'],
+                    settings['width'])
 
 
     # loop until monitor reports an abort
