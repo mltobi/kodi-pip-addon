@@ -228,8 +228,9 @@ class FFMpeg():
                    '-vf', 'fps=%d,scale=%d:-1' % (self.fps, self.width),
                    '-qscale:v', '10',
                    '-y',
-                   '-update', '1',
+                   '-update', 'true',
                    '-vcodec', 'mjpeg',
+                   '-atomic_writing', 'true',
                    self.imagefile]
 
             for item in self.addopts.split(' '):
