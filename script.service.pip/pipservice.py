@@ -383,6 +383,9 @@ if __name__ == '__main__':
     xbmc.log('[pip-service] Starting', xbmc.LOGINFO)
     pip = PIP(imagefilename, keymapfilename)
 
+    # install files, e.g. keymap to userdata
+    pip.install()
+
     # get settings
     settings = pip.get_settings()
 

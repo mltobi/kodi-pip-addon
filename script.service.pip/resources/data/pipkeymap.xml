@@ -1,23 +1,7 @@
 <keymap>
   <global>
-    <gamepad>
-    </gamepad>
-
-    <remote>
-    </remote>
-
     <keyboard>
       <p mod="longpress">NotifyAll(service.pip, toggle_pip)</p>
     </keyboard>
-
-    <mouse>
-    </mouse>
-
-    <universalremote>
-    </universalremote>
   </global>
-
-  <Home>
-  </Home>
-
 </keymap>
