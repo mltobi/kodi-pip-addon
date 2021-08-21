@@ -33,6 +33,8 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 ### Parameters
 * PIP settings: position and size of image
 * Tvheadend settings: username, password, server address and port
+* It is highly recommended to use a ramdisc as temporary folder where the ffmpeg-captured images are stored!
+* Currently a manual reactivation of the addon after a settings update is required!
 
 ### M3U file format
 The m3u file downloaded from tvheadend server needs to have the following format:
