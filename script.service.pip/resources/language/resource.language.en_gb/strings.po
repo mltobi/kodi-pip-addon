@@ -77,7 +77,7 @@ msgid "Frames per seconds"
 msgstr ""
 
 msgctxt "#32013"
-msgid "Profile e.g. matroska"
+msgid "Profile e.g. pass"
 msgstr ""
 
 msgctxt "#32014"

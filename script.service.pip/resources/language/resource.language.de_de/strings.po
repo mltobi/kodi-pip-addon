@@ -34,7 +34,7 @@ msgstr "Position oben"
 
 msgctxt "#32002"
 msgid "Left position"
-msgstr "Position untern"
+msgstr "Position links"
 
 msgctxt "#32003"
 msgid "Distance from top or bottom"
@@ -42,7 +42,7 @@ msgstr "Abstand zu oben oder unten"
 
 msgctxt "#32004"
 msgid "Distance from left or right"
-msgstr "Abstannd zu links oder rechts"
+msgstr "Abstand zu links oder rechts"
 
 msgctxt "#32005"
 msgid "Picture-in-Picture width"
@@ -77,12 +77,12 @@ msgid "Frames per seconds"
 msgstr "Frames pro Sekunde"
 
 msgctxt "#32013"
-msgid "Profile e.g. matroska"
-msgstr "Profile z.B. matroska"
+msgid "Profile e.g. pass"
+msgstr "Profile z.B. pass"
 
 msgctxt "#32014"
 msgid "Temporary folder (on a RAM disc)"
-msgstr "Temporärer Ordner (RAM disk Ordner)"
+msgstr "Temporärer Ordner (RAM Disk Ordner)"
 
 msgctxt "#32015"
 msgid "FFMPEG"
