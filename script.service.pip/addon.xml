@@ -15,6 +15,7 @@
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
 Vx.y.z ()
+- Added channel number to displayed pip image
 - Added more key shortcuts
   - ctrl+shift+p: toggle pip
   - ctrl+shift+up: on channel up for displayed pip
