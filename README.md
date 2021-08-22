@@ -49,6 +49,12 @@ http://192.168.1.1:9981/stream/channelid/....?profile=pass
 * tvheadend server version 4.3+ with the possibiltiy of more parallel streams, e.g. via IPTV or more than two DVB inputs -> TV adapters
 
 
+## Debugging / Logging
+* check .kodi/temp/kodi.log
+* check /tmp/pipffmpeg_stderr.log
+* check thumb[uuid].png files in /tmp folder
+
+
 ## Tested on following environments
 * Ubuntu 20.04.2 LTS 
   * kodi 20.0-ALPHA1 (19.90.101) Git:20210721-3fdf4542d2
