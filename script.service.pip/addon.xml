@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.service.pip" name="Picture-in-Picture Service" version="1.0.0" provider-name="mltobi">
+<addon id="script.service.pip" name="Picture-in-Picture Service" version="1.0.1" provider-name="mltobi">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 	</requires>
@@ -7,13 +7,20 @@
 	</extension>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="en_GB">Picture-in-Picture service</summary>
-		<description lang="en_GB">Automatically run Picture-in-Picture service code when Kodi starts.</description>
+		<description lang="en_GB">Automatically run Picture-in-Picture service code when Kodi starts. Use ramdisk for temporary folder!</description>
 		<summary lang="de_DE">Picture-in-Picture Dienst</summary>
-		<description lang="de_DE">Picture-in-Picture Dienst starte automatisch wenn Kodi startet.</description>
+		<description lang="de_DE">Picture-in-Picture Dienst starte automatisch wenn Kodi startet. Verwende Ramdisk für den temporären Ordner!</description>
 		<platform>all</platform>
 		<license>GNU GENERAL PUBLIC LICENSE Version 2</license>
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
+V1.0.1 (2021-08-22)
+- Added important hint on ramdisk usage for temp folder
+- Fixed usage of height settings and added settings updates using monitor class
+- Fixed several spelling errors in en and de language
+- Added test if ffmpeg executable is available
+- Added try/catch to avoid exception if thumb.png does not exist, belongs to #2
+
 V1.0.0 (2021-08-21)
 - first release of PIP addon
 - fixed installation of keymap file
