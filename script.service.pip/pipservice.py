@@ -354,10 +354,14 @@ class PIP():
             # add to latest captured image a unique id in order to force reload the image via setImage function
             olduuidfile = self.uuidfile
             self.uuidfile = self.imagefile.replace(".png", "%s.png" % str(uuid.uuid4()))
-            shutil.copy(self.imagefile, self.uuidfile)
+            try:
+                # copy thumb.png to thumb[uuid].png
+                shutil.copy(self.imagefile, self.uuidfile)
 
-            # set new image file
-            self.imgHdl.setImage(self.uuidfile, useCache = False)
+                # set new image file
+                self.imgHdl.setImage(self.uuidfile, useCache = False)
+            except FileNotFoundError:
+                pass
 
             # remove already set image file if it exists
             if olduuidfile != None:
