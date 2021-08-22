@@ -408,14 +408,12 @@ class PIP():
     # install keymap file
     def install(self):
 
-        # path
+        # path evaluation
         resourcepath = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resources/data/"
         keymappath = xbmcvfs.translatePath("special://home/userdata/keymaps/")
 
-        # just during installation
-        if not os.path.exists(keymappath + self.keymapfile):
-            # add keymap
-            shutil.copy(resourcepath + self.keymapfile, keymappath + self.keymapfile)
+        # copy or overwrite keymap xml
+        shutil.copy(resourcepath + self.keymapfile, keymappath + self.keymapfile)
 
 
     # get addon settings
