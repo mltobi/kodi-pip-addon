@@ -181,6 +181,25 @@ class FFMpeg():
             os.remove(self.imagefile)
 
 
+    # test if ffmpeg is available
+    def test(self):
+        ret = False
+        try:
+            process = subprocess.Popen( ['ffmpeg', '-version'], 
+                                        stderr=subprocess.PIPE, 
+                                        stdout=subprocess.PIPE)
+            process.communicate()
+            exit_code = process.wait()
+            if exit_code == 0:
+                ret = True
+            else:
+                ret = False
+        except FileNotFoundError:
+            ret = False
+
+        return ret
+
+
     # check if ffmpeg process is running
     def running(self):
         try:
@@ -416,42 +435,49 @@ if __name__ == '__main__':
                     settings['ffmpegopts'],
                     settings['width'])
 
+    # test if ffmpeg executable is available
+    if ffmpeg.test():
 
-    # loop until monitor reports an abort
-    sleeptime = float(1/settings['fps'])
-    while not monitor.waitForAbort(sleeptime):
+        # loop until monitor reports an abort
+        sleeptime = float(1/settings['fps'])
+        while not monitor.waitForAbort(sleeptime):
 
-        if monitor.get_keystatus():
-            if ffmpeg.started():
-                # stop picture in picture capturing
-                ffmpeg.stop()
-                xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Stopping ...", 2000, __icon__))
-                xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
+            if monitor.get_keystatus():
+                if ffmpeg.started():
+                    # stop picture in picture capturing
+                    ffmpeg.stop()
+                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Stopping ...", 2000, __icon__))
+                    xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
 
-            else:
-                # start picture in picture capturing using ffmpeg
-                url, channel = m3u.get_url()
-                if url == "":
-                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 1000, __icon__))
-                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Not started ...", 1000, __icon__))
                 else:
-                    ffmpeg.start(url, False)
-                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
-                    xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
+                    # start picture in picture capturing using ffmpeg
+                    url, channel = m3u.get_url()
+                    if url == "":
+                        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 2000, __icon__))
+                        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Not started ...", 2000, __icon__))
+                    else:
+                        ffmpeg.start(url, False)
+                        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
+                        xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
 
-        if ffmpeg.started() and not ffmpeg.running():
-            # restart ffmpeg
-            ffmpeg.start(url, True)
-            xbmc.log("[pip-service] re-started ffmpeg process for %s." % url, xbmc.LOGWARNING)
+            if ffmpeg.started() and not ffmpeg.running():
+                # restart ffmpeg
+                ffmpeg.start(url, True)
+                xbmc.log("[pip-service] re-started ffmpeg process for %s." % url, xbmc.LOGWARNING)
 
-        if ffmpeg.started():
-            # display picture-in-picture if a capture image from ffmpeg process is available
-            pip.show_image()
-        else:
-            pip.hide_image()
+            if ffmpeg.started():
+                # display picture-in-picture if a capture image from ffmpeg process is available
+                pip.show_image()
+            else:
+                pip.hide_image()
 
-    # stop ffmpeg process if running
-    ffmpeg.stop()
+        # stop ffmpeg process if running
+        ffmpeg.stop()
+
+    else:
+        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No ffmpeg executable found ...", 2000, __icon__))
+        xbmc.log("[pip-service] no ffmpeg executable available!", xbmc.LOGERROR)
+
 
     # clean up the rest
     del ffmpeg
@@ -460,4 +486,4 @@ if __name__ == '__main__':
     del pip
     del __addon__
 
-    xbmc.log('[pip-service] Finished, exiting', xbmc.LOGINFO)
+    xbmc.log('[pip-service] finished, exiting', xbmc.LOGINFO)
