@@ -100,7 +100,7 @@ class XBMCMonitor( xbmc.Monitor ):
     def onSettingsChanged(self):
         xbmc.log("[pip-service] settings have changed.", xbmc.LOGINFO)
         self.changed = True
-        
+
 
 
 '''
@@ -253,9 +253,9 @@ class M3U():
     def switch_channel(self, channelname):
 
         # get information for current player item as json reponse
-        rpccmd = {"id" : 1, 
-                  "jsonrpc" : "2.0", 
-                  "method" : "Player.Open", 
+        rpccmd = {"id" : 1,
+                  "jsonrpc" : "2.0",
+                  "method" : "Player.Open",
                   "params" : {
                       "item" : { "channelid" : self.channel2id[channelname] }
                    }
@@ -297,8 +297,8 @@ class FFMpeg():
     def test(self):
         ret = False
         try:
-            process = subprocess.Popen( ['ffmpeg', '-version'], 
-                                        stderr=subprocess.PIPE, 
+            process = subprocess.Popen( ['ffmpeg', '-version'],
+                                        stderr=subprocess.PIPE,
                                         stdout=subprocess.PIPE)
             process.communicate()
             exit_code = process.wait()
@@ -395,6 +395,8 @@ class PIP():
         self.settings = {}
         self.imgHdl = None
         self.img = False
+        self.labelHdl = None
+        self.channelnumber = 1
 
         self.x = 20
         self.y = 110
@@ -480,7 +482,16 @@ class PIP():
 
                 # add image control to windows handle
                 self.winHdl.addControl(self.imgHdl)
+
+                # add channel number label control to windows handle
+                self.labelHdl = xbmcgui.ControlLabel(self.x + 5, self.y, 125, 125, str(self.channelnumber))
+                self.winHdl.addControl(self.labelHdl)
+
                 self.img = True
+
+
+            # set channel number label text
+            self.labelHdl.setLabel(str(self.channelnumber))
 
             # add to latest captured image a unique id in order to force reload the image via setImage function
             olduuidfile = self.uuidfile
@@ -505,8 +516,13 @@ class PIP():
         if self.img:
             self.winHdl.removeControl(self.imgHdl)
             del self.imgHdl
+            self.winHdl.removeControl(self.labelHdl)
+            del self.labelHdl
             self.img = False
 
+
+    def set_channel_number(self, number):
+        self.channelnumber = number
 
 
 '''
@@ -590,7 +606,10 @@ if __name__ == '__main__':
 
                 else:
                     # start picture in picture capturing using ffmpeg
-                    url, channel = m3u.get_url()
+                    url, channelname = m3u.get_url()
+                    channelnumber = m3u.channel2number[channelname]
+                    pip.set_channel_number(channelnumber)
+
                     if url == "":
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 2000, __icon__))
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Not started ...", 2000, __icon__))
@@ -609,7 +628,7 @@ if __name__ == '__main__':
                 ffmpeg.stop()
                 xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
 
-                
+
             if monitor.get_channel_up_status():
                 # switch one channel up of pip channel
                 channelname = m3u.get_channel_name()
@@ -617,11 +636,12 @@ if __name__ == '__main__':
 
                 if (channelnumber + 1) in m3u.number2url:
                     url = m3u.number2url[channelnumber + 1]
-                                
+
                     # restart picture in picture capturing
                     ffmpeg.stop()
                     ffmpeg.start(url, False)
 
+                    pip.set_channel_number(channelnumber + 1)
                     m3u.set_channel_name(channelnumber + 1)
 
 
@@ -632,11 +652,12 @@ if __name__ == '__main__':
 
                 if (channelnumber - 1) in m3u.number2url:
                     url = m3u.number2url[channelnumber - 1]
-                            
+
                     # restart picture in picture capturing
                     ffmpeg.stop()
                     ffmpeg.start(url, False)
 
+                    pip.set_channel_number(channelnumber - 1)
                     m3u.set_channel_name(channelnumber - 1)
 
 
