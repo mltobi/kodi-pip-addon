@@ -32,25 +32,61 @@ class XBMCMonitor( xbmc.Monitor ):
 
     # constructor
     def __init__(self):
-        self.keypressed = False
+        self.toggled = False
+        self.channelup = False
+        self.channeldown = False
+        self.channelback = False
         self.changed = False
 
 
-    # get last key status
-    def get_key_status(self):
-        keypressed = self.keypressed
-        self.keypressed = False
-        return keypressed
+    # get toggle status
+    def get_toggle_status(self):
+        ret = self.toggled
+        self.toggled = False
+        return ret
+
+
+    # get channel up status
+    def get_channel_up_status(self):
+        ret = self.channelup
+        self.channelup = False
+        return ret
+
+
+    # get channel down status
+    def get_channel_down_status(self):
+        ret = self.channeldown
+        self.channeldown = False
+        return ret
+
+
+    # get channel back status
+    def get_channel_back_status(self):
+        ret = self.channelback
+        self.channelback = False
+        return ret
 
 
     # called on a notification
     def onNotification(self, sender, method, data):
 
         if sender == "service.pip":
+            xbmc.log("[pip-service] key press detected!", xbmc.LOGINFO)
             if method == "Other.toggle_pip":
-                xbmc.log("[pip-service] key press detected!", xbmc.LOGINFO)
                 xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
-                self.keypressed = True
+                self.toggled= True
+
+            if method == "Other.channel_up_pip":
+                xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
+                self.channelup = True
+
+            if method == "Other.channel_down_pip":
+                xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
+                self.channeldown= True
+
+            if method == "Other.channel_back_pip":
+                xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGINFO)
+                self.channelback= True
 
 
     # get settings changed status
@@ -78,6 +114,10 @@ class M3U():
         self.update_settings(username, password, ipaddress, port, profile)
         self.m3ulines = None
         self.channel2url = {}
+        self.channel2number = {}
+        self.number2channel = {}
+        self.number2url = {}
+        self.channel2id = {}
         self.url = ""
         self.channel = ""
 
@@ -126,21 +166,30 @@ class M3U():
         # http://192.168.144.67:9981/stream/channelid/1169598191?profile=pass
 
         self.channel2url = {}
+        self.channel2number = {}
+        self.number2url = {}
+        self.number2channel = {}
         if self.m3ulines != None:
             for i, line in enumerate(self.m3ulines):
                 # loop line list
                 if line.find("logo=") != -1 and line.find("tvg-id=") != -1 and line.find("tvg-chno=") != -1:
                     # split line by tvg-chno
-                    parts = line.split("tvg-chno")
+                    parts = line.split("tvg-chno=")
 
                     if len(parts) > 1:
                         # split line by '",' to get channel name
-                        parts = parts[1].split("\",")
+                        pparts = parts[1].split("\",")
 
-                        if len(parts) > 1:
+                        if len(pparts) > 1:
                             # create a loopup dictionary key=channel-name and value=url-link
-                            name = parts[1].replace('\n', '')
+                            name = pparts[1].replace('\n', '')
                             self.channel2url[name] = self.m3ulines[i+1].replace('\n', '')
+
+                            # create a loopup dictionary key=channel-name and value=number
+                            number = pparts[0].replace('"', '')
+                            self.channel2number[name] = int(number)
+                            self.number2channel[int(number)] = name
+                            self.number2url[int(number)] = self.channel2url[name]
 
             xbmc.log("[pip-service] parsed %d channels." % len(self.channel2url), xbmc.LOGINFO)
             if len(self.channel2url) == 0:
@@ -148,6 +197,15 @@ class M3U():
                 xbmc.log("[pip-service] #EXTINF:-1 logo=\"...\" tvg-id=\"...\" tvg-chno=\"...\",[channel name]", xbmc.LOGDEBUG)
                 xbmc.log("[pip-service] http://192.168.1.1:9981/stream/channelid/[....]?profile=%s" % self.profile, xbmc.LOGDEBUG)
 
+
+    # get pip channel name
+    def get_channel_name(self):
+        return self.channel
+
+
+    # set new channel name depending on channel number
+    def set_channel_name(self, channelnumber):
+        self.channel = self.number2channel[channelnumber]
 
 
     # get current active channel the url of it
@@ -175,6 +233,35 @@ class M3U():
             self.url = ""
 
         return self.url, self.channel
+
+
+    # get all channel ids
+    def get_channel_ids(self):
+
+        rpccmd = {"jsonrpc":"2.0","method": "PVR.GetChannels","params": {"channelgroupid": "alltv"},"id": 1}
+        rpccmd = json.dumps(rpccmd)
+        result = xbmc.executeJSONRPC(rpccmd)
+        result = json.loads(result)
+
+        channels = result['result']['channels']
+        self.channel2id = {}
+        for channel in channels:
+            self.channel2id[channel['label']] = channel['channelid']
+
+
+    # switch to channel
+    def switch_channel(self, channelname):
+
+        # get information for current player item as json reponse
+        rpccmd = {"id" : 1, 
+                  "jsonrpc" : "2.0", 
+                  "method" : "Player.Open", 
+                  "params" : {
+                      "item" : { "channelid" : self.channel2id[channelname] }
+                   }
+                 }
+        rpccmd = json.dumps(rpccmd)
+        xbmc.executeJSONRPC(rpccmd)
 
 
 '''
@@ -450,6 +537,9 @@ if __name__ == '__main__':
     m3u.download()
     m3u.parse()
 
+    # get all available channel ids
+    m3u.get_channel_ids()
+
     # start a xbmc monitor
     monitor = XBMCMonitor()
 
@@ -494,11 +584,10 @@ if __name__ == '__main__':
                                         settings['width'])
 
 
-            if monitor.get_key_status():
+            if monitor.get_toggle_status():
                 if ffmpeg.started():
                     # stop picture in picture capturing
                     ffmpeg.stop()
-                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Stopping ...", 2000, __icon__))
                     xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
 
                 else:
@@ -511,6 +600,47 @@ if __name__ == '__main__':
                         ffmpeg.start(url, False)
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
                         xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
+
+
+            if monitor.get_channel_back_status():
+                # switch back to pip channel
+                channelname = m3u.get_channel_name()
+                m3u.switch_channel(channelname)
+
+                # stop picture in picture capturing
+                ffmpeg.stop()
+                xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
+
+                
+            if monitor.get_channel_up_status():
+                # switch one channel up of pip channel
+                channelname = m3u.get_channel_name()
+                channelnumber = m3u.channel2number[channelname]
+
+                if (channelnumber + 1) in m3u.number2url:
+                    url = m3u.number2url[channelnumber + 1]
+                                
+                    # restart picture in picture capturing
+                    ffmpeg.stop()
+                    ffmpeg.start(url, False)
+
+                    m3u.set_channel_name(channelnumber + 1)
+
+
+            if monitor.get_channel_down_status():
+                # switch one channel down of pip channel
+                channelname = m3u.get_channel_name()
+                channelnumber = m3u.channel2number[channelname]
+
+                if (channelnumber - 1) in m3u.number2url:
+                    url = m3u.number2url[channelnumber - 1]
+                            
+                    # restart picture in picture capturing
+                    ffmpeg.stop()
+                    ffmpeg.start(url, False)
+
+                    m3u.set_channel_name(channelnumber - 1)
+
 
             if ffmpeg.started() and not ffmpeg.running():
                 # restart ffmpeg
