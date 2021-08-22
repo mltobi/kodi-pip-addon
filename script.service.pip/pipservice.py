@@ -26,23 +26,24 @@ imagefilename = "thumb.png"
 
 '''
 Class XBMCMonitor
-xbmc monitor with on notification handler
+xbmc monitor with on notification and on settings changed handler
 '''
 class XBMCMonitor( xbmc.Monitor ):
 
     # constructor
     def __init__(self):
         self.keypressed = False
+        self.changed = False
 
 
     # get last key status
-    def get_keystatus(self):
+    def get_key_status(self):
         keypressed = self.keypressed
         self.keypressed = False
         return keypressed
 
 
-    # call on a notification
+    # called on a notification
     def onNotification(self, sender, method, data):
 
         if sender == "service.pip":
@@ -50,6 +51,20 @@ class XBMCMonitor( xbmc.Monitor ):
                 xbmc.log("[pip-service] key press detected!", xbmc.LOGINFO)
                 xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
                 self.keypressed = True
+
+
+    # get settings changed status
+    def get_settings_changed_status(self):
+        changed = self.changed
+        self.changed = False
+        return changed
+
+
+    # called on settings changed
+    def onSettingsChanged(self):
+        xbmc.log("[pip-service] settings have changed.", xbmc.LOGINFO)
+        self.changed = True
+        
 
 
 '''
@@ -60,14 +75,19 @@ class M3U():
 
     # constructor
     def __init__(self, username, password, ipaddress, port, profile):
-        self.username = username
-        self.password = password
-        self.ipaddress = ipaddress
-        self.port = port
+        self.update_settings(username, password, ipaddress, port, profile)
         self.m3ulines = None
         self.channel2url = {}
         self.url = ""
         self.channel = ""
+
+
+    # update settings
+    def update_settings(self, username, password, ipaddress, port, profile):
+        self.username = username
+        self.password = password
+        self.ipaddress = ipaddress
+        self.port = port
         self.profile = profile
 
 
@@ -165,13 +185,8 @@ class FFMpeg():
 
     # constructor
     def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions, width):
+        self.update_settings(tmpfolder, username, password, fps, addoptions, width)
         self.imagefile = tmpfolder + "/" + imagefilename
-        self.tmpfolder = tmpfolder
-        self.username = username
-        self.password = password
-        self.fps = fps
-        self.addopts = addoptions
-        self.width = width
         self.proc = ""
         self.urlold = ""
         self.flgStarted = False
@@ -179,6 +194,16 @@ class FFMpeg():
         # remove "old" image file
         if os.path.exists(self.imagefile):
             os.remove(self.imagefile)
+
+
+    # update settings
+    def update_settings(self, tmpfolder, username, password, fps, addoptions, width):
+        self.tmpfolder = tmpfolder
+        self.username = username
+        self.password = password
+        self.fps = fps
+        self.addopts = addoptions
+        self.width = width
 
 
     # test if ffmpeg is available
@@ -307,47 +332,33 @@ class PIP():
 
 
     # get addon settings
-    def get_settings(self):
+    def get_settings(self, addon):
 
         # get addon settings and convert them to a dictionary
-        if __addon__.getSetting('top') == 'true':
+        if addon.getSetting('top') == 'true':
             self.settings['top'] = True
         else:
             self.settings['top'] = False
 
-        if __addon__.getSetting('left') == 'true':
+        if addon.getSetting('left') == 'true':
             self.settings['left'] = True
         else:
             self.settings['left'] = False
 
-        self.settings['xgap'] = int(__addon__.getSetting('xgap'))
-        self.settings['ygap'] = int(__addon__.getSetting('ygap'))
-        self.settings['width'] = int(__addon__.getSetting('width'))
-        self.settings['height'] = int(__addon__.getSetting('height'))
-        self.settings['fps'] = int(__addon__.getSetting('fps'))
-        self.settings['ipaddress'] = str(__addon__.getSetting('ipaddress'))
-        self.settings['port'] = str(__addon__.getSetting('port'))
-        self.settings['username'] = str(__addon__.getSetting('username'))
-        self.settings['password'] = str(__addon__.getSetting('password'))
-        self.settings['profile'] = str(__addon__.getSetting('profile'))
-        self.settings['tmpfolder'] = str(__addon__.getSetting('tmpfolder'))
-        self.settings['ffmpegopts'] = str(__addon__.getSetting('ffmpegopts'))
+        self.settings['xgap'] = int(addon.getSetting('xgap'))
+        self.settings['ygap'] = int(addon.getSetting('ygap'))
+        self.settings['width'] = int(addon.getSetting('width'))
+        self.settings['height'] = int(addon.getSetting('height'))
+        self.settings['fps'] = int(addon.getSetting('fps'))
+        self.settings['ipaddress'] = str(addon.getSetting('ipaddress'))
+        self.settings['port'] = str(addon.getSetting('port'))
+        self.settings['username'] = str(addon.getSetting('username'))
+        self.settings['password'] = str(addon.getSetting('password'))
+        self.settings['profile'] = str(addon.getSetting('profile'))
+        self.settings['tmpfolder'] = str(addon.getSetting('tmpfolder'))
+        self.settings['ffmpegopts'] = str(addon.getSetting('ffmpegopts'))
 
         self.imagefile = "%s/%s" % (self.settings['tmpfolder'], self.imagefilename)
-
-        # define dimensions
-        wwin = self.winHdl.getWidth()
-        hwin = self.winHdl.getHeight()
-        self.w = self.settings['width']
-        self.h = self.settings['height']
-        if self.settings['left']:
-            self.x = self.settings['xgap']
-        else:
-            self.x = wwin - self.settings['xgap'] - self.w
-        if self.settings['top']:
-            self.y = self.settings['ygap']
-        else:
-            self.y = hwin - self.settings['ygap'] - self.h
 
         # return settings as dictionary
         return self.settings
@@ -356,17 +367,33 @@ class PIP():
     # display picture-in-picture image if avaiable
     def show_image(self):
 
-        # get settings
-        self.get_settings()
-
         # get current windows ID
         winId = xbmcgui.getCurrentWindowId()
 
         # if video fullscreen window ID
         if winId == self.winId and os.path.exists(self.imagefile):
             if not self.img:
+                # define dimensions
+                wwin = self.winHdl.getWidth()
+                hwin = self.winHdl.getHeight()
+                xbmc.log("[pip-service] windows size: %d x %d" % (wwin, hwin), xbmc.LOGINFO)
+                self.w = self.settings['width']
+                self.h = self.settings['height']
+                if self.settings['left']:
+                    self.x = self.settings['xgap']
+                else:
+                    self.x = wwin - self.settings['xgap'] - self.w
+                if self.settings['top']:
+                    self.y = self.settings['ygap']
+                else:
+                    self.y = hwin - self.settings['ygap'] - self.h
+                xbmc.log("[pip-service] x and y: %d x %d" % (self.x, self.y), xbmc.LOGINFO)
+
+                # create image control
                 self.imgHdl = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
                 self.imgHdl.setAnimations([('visible', 'effect=fade end=100 time=300 delay=300',)])
+
+                # add image control to windows handle
                 self.winHdl.addControl(self.imgHdl)
                 self.img = True
 
@@ -410,7 +437,7 @@ if __name__ == '__main__':
     pip.install()
 
     # get settings
-    settings = pip.get_settings()
+    settings = pip.get_settings(__addon__)
 
     # init m3u
     m3u = M3U(settings['username'],
@@ -442,7 +469,32 @@ if __name__ == '__main__':
         sleeptime = float(1/settings['fps'])
         while not monitor.waitForAbort(sleeptime):
 
-            if monitor.get_keystatus():
+            if monitor.get_settings_changed_status():
+
+                # udpate pip settings
+                settings = pip.get_settings(__addon__)
+
+                # update m3u settings
+                m3u.update_settings(settings['username'],
+                                    settings['password'],
+                                    settings['ipaddress'],
+                                    settings['port'],
+                                    settings['profile'])
+
+                # download and parse channels
+                m3u.download()
+                m3u.parse()
+
+                # update ffmpeg settings
+                ffmpeg.update_settings( settings['tmpfolder'],
+                                        settings['username'],
+                                        settings['password'],
+                                        settings['fps'],
+                                        settings['ffmpegopts'],
+                                        settings['width'])
+
+
+            if monitor.get_key_status():
                 if ffmpeg.started():
                     # stop picture in picture capturing
                     ffmpeg.stop()
