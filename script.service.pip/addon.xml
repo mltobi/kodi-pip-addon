@@ -14,6 +14,13 @@
 		<license>GNU GENERAL PUBLIC LICENSE Version 2</license>
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
+Vx.y.z ()
+- Added more key shortcuts
+  - ctrl+shift+p: toggle pip
+  - ctrl+shift+up: on channel up for displayed pip
+  - ctrl+shift+down: on channel down for displayed pip
+  - ctrl+shift+b: back to pip channel and hide pip
+
 V1.0.1 (2021-08-22)
 - Added important hint on ramdisk usage for temp folder
 - Fixed usage of height settings and added settings updates using monitor class
