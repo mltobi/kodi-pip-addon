@@ -23,10 +23,10 @@ import subprocess
 
 
 '''
-Class FFMPEG
+Class Ffmpeg
 controls ffmpeg process
 '''
-class FFMpeg:
+class Ffmpeg:
 
     # constructor
     def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions, width):

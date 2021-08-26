@@ -20,10 +20,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import xbmc
 import xbmcaddon
+import xbmcvfs
 
-from resources.lib.m3u import M3U
-from resources.lib.ffmpeg import FFMpeg
-from resources.lib.pip import PIP
+
+from resources.lib.m3u import M3u
+from resources.lib.ffmpeg import Ffmpeg
+from resources.lib.pip import Pip
+from resources.lib.keymap import Keymap
 
 
 # addon infos
@@ -33,15 +36,14 @@ __icon__ = __addon__.getAddonInfo('icon')
 
 
 # files
-keymapfilename = "pipkeymap.xml"
 imagefilename = "thumb.png"
 
 
 '''
-Class XBMCMonitor
+Class XbmcMonitor
 xbmc monitor with on notification and on settings changed handler
 '''
-class XBMCMonitor( xbmc.Monitor ):
+class XbmcMonitor( xbmc.Monitor ):
 
     # constructor
     def __init__(self):
@@ -123,16 +125,18 @@ if __name__ == '__main__':
 
     # init pip
     xbmc.log('[pip-service] Starting', xbmc.LOGINFO)
-    pip = PIP(imagefilename, keymapfilename)
-
-    # install files, e.g. keymap to userdata
-    pip.install()
+    pip = Pip(imagefilename)
 
     # get settings
     settings = pip.get_settings(__addon__)
 
+    # init keymap
+    keymap = Keymap(xbmcvfs.translatePath("special://home/userdata/keymaps/"))
+    keymap.update(settings['keytoggle'], settings['keyback'], settings['keyup'], settings['keydown'])
+    keymap.create()
+
     # init m3u
-    m3u = M3U(settings['username'],
+    m3u = M3u(settings['username'],
               settings['password'],
               settings['ipaddress'],
               settings['port'],
@@ -146,10 +150,10 @@ if __name__ == '__main__':
     m3u.get_channel_ids()
 
     # start a xbmc monitor
-    monitor = XBMCMonitor()
+    monitor = XbmcMonitor()
 
     # init ffmpeg
-    ffmpeg = FFMpeg(imagefilename,
+    ffmpeg = Ffmpeg(imagefilename,
                     settings['tmpfolder'],
                     settings['username'],
                     settings['password'],
@@ -158,7 +162,7 @@ if __name__ == '__main__':
                     settings['width'])
 
     # test if ffmpeg executable is available
-    if ffmpeg.test():
+    if ffmpeg.test() and pip.get_settings_status():
 
         # loop until monitor reports an abort
         sleeptime = float(1/settings['fps'])
@@ -166,8 +170,14 @@ if __name__ == '__main__':
 
             if monitor.get_settings_changed_status():
 
-                # udpate pip settings
+                # update pip settings
                 settings = pip.get_settings(__addon__)
+                if pip.get_settings_status() == False:
+                    break
+
+                # update keymap
+                keymap.update(settings['keytoggle'], settings['keyback'], settings['keyup'], settings['keydown'])
+                keymap.create()
 
                 # update m3u settings
                 m3u.update_settings(settings['username'],
@@ -266,12 +276,19 @@ if __name__ == '__main__':
         # stop ffmpeg process if running
         ffmpeg.stop()
 
-    else:
+
+    # report some error infos to user
+    if not ffmpeg.test():
         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No ffmpeg executable found ...", 2000, __icon__))
         xbmc.log("[pip-service] no ffmpeg executable available!", xbmc.LOGERROR)
 
+    if not pip.get_settings_status():
+        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Create a ramdisk and use it as temporary folder in the addon configuration.", 2000, __icon__))
+        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Using a temporary folder on a ramdisk is highly recommended ", 2000, __icon__))
+        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "to avoid too many write accesses to the harddisc!", 2000, __icon__))
 
-    # clean up the rest
+
+    # clean up before exit
     del ffmpeg
     del m3u
     del monitor

@@ -96,3 +96,26 @@ msgctxt "#32050"
 msgid "Picture-in-Picture Service"
 msgstr "Bild-in-Bild Dienst"
 
+sgctxt "#32020"
+msgid "Key mapping"
+msgstr "Key Mapping"
+
+msgctxt "#32021"
+msgid "Usage: '[ctrl+][shift+][longpress+]key'"
+msgstr "Verwendung: '[ctrl+][shift+][longpress+]key'"
+
+msgctxt "#32022"
+msgid "Enable/disable PIP"
+msgstr "Enable/disable PIP"
+
+msgctxt "#32023"
+msgid "Back to channel"
+msgstr "Zurück zum Kanal"
+
+msgctxt "#32024"
+msgid "Channel up"
+msgstr "Kanal hoch schalten"
+
+msgctxt "#32025"
+msgid "Channel down"
+msgstr "Kanal runter schalten"

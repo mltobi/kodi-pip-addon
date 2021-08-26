@@ -20,25 +20,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import xbmc
 import xbmcgui
-import xbmcvfs
-import xbmcaddon
 import os
 import shutil
 import uuid
+import platform
 
 
 '''
-Class PIP
+Class Pip
 controls display of picture-in-picture
 '''
-class PIP:
+class Pip:
 
     # constructor
-    def __init__(self, imagefilename, keymapfile):
+    def __init__(self, imagefilename, ):
 
         self.imagefilename = imagefilename
-        self.imagefile = "/tmp/" + imagefilename
-        self.keymapfile = keymapfile
+        self.imagefile = "/dev/shm/" + imagefilename
+        self.settingsValid = False
         self.uuidfile = None
 
         self.settings = {}
@@ -54,17 +53,6 @@ class PIP:
 
         self.winId = 12005
         self.winHdl = xbmcgui.Window(self.winId)
-
-
-    # install keymap file
-    def install(self):
-
-        # path evaluation
-        resourcepath = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resources/data/"
-        keymappath = xbmcvfs.translatePath("special://home/userdata/keymaps/")
-
-        # copy or overwrite keymap xml
-        shutil.copy(resourcepath + self.keymapfile, keymappath + self.keymapfile)
 
 
     # get addon settings
@@ -93,11 +81,41 @@ class PIP:
         self.settings['profile'] = str(addon.getSetting('profile'))
         self.settings['tmpfolder'] = str(addon.getSetting('tmpfolder'))
         self.settings['ffmpegopts'] = str(addon.getSetting('ffmpegopts'))
+        self.settings['keytoggle'] = str(addon.getSetting('keytoggle'))
+        self.settings['keyback'] = str(addon.getSetting('keyback'))
+        self.settings['keyup'] = str(addon.getSetting('keyup'))
+        self.settings['keydown'] = str(addon.getSetting('keydown'))
+
+        self.settingsValid = False
+        if self.settings['tmpfolder'].replace(" ", "") == "":
+
+            if platform.system() == "Linux":
+                xbmc.log("[pip-service] Detected Linux platform", xbmc.LOGDEBUG)    
+                # test if /dev/shm is available and accessible
+                tmpfolder = "/dev/shm"
+                try:
+                    fobj = open(tmpfolder + "/writetest.txt", "w")
+                    fobj.close()
+                    self.settings['tmpfolder'] = "/dev/shm"
+                    self.settingsValid = True
+                except IOError:
+                    xbmc.log("[pip-service] Folder '%s' is not usable on detected Linux platform. Please define a ramdisk folder manually via addon configuration." % tmpfolder, xbmc.LOGERROR)    
+                    self.settingsValid = False
+
+            if platform.system() == "Windows":
+                xbmc.log("[pip-service] Detected Windows platform", xbmc.LOGDEBUG)    
+                xbmc.log("[pip-service] Windows platform does not provide a standard ramdisk. Please create a ramdisk and define the path to it manually via addon configuration." % tmpfolder, xbmc.LOGERROR)    
+                self.settingsValid = False
 
         self.imagefile = "%s/%s" % (self.settings['tmpfolder'], self.imagefilename)
 
         # return settings as dictionary
         return self.settings
+
+
+    # return status of parsed settings
+    def get_settings_status(self):
+        return self.settingsValid
 
 
     # display picture-in-picture image if avaiable

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.service.pip" name="Picture-in-Picture Service" version="1.0.1" provider-name="mltobi">
+<addon id="script.service.pip" name="Picture-in-Picture Service" version="1.1.0" provider-name="mltobi">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 	</requires>
@@ -15,8 +15,10 @@
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
 Vx.y.z ()
-- Added channel number to displayed pip image
-- Added more key shortcuts
+- Use ramdisk /dev/shm as temporary folder by default #3
+  - If /dev/shm is no accessible or a non-Linux platform is detected user have to create a ramdisk manually.
+- Added channel number to displayed pip image #4
+- Added more key shortcuts #5
   - ctrl+shift+p: toggle pip
   - ctrl+shift+up: on channel up for displayed pip
   - ctrl+shift+down: on channel down for displayed pip

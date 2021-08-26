@@ -25,10 +25,10 @@ from urllib.request import Request
 
 
 '''
-Class M3U
+Class M3u
 handles m3u download, parsing and url request
 '''
-class M3U:
+class M3u:
 
     # constructor
     def __init__(self, username, password, ipaddress, port, profile):
