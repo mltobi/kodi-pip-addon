@@ -18,10 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
 
-try:
-    from lxml import etree
-except ImportError:
-    pass
+import xml.dom.minidom as xml
 
 '''
 Class Keymap
@@ -46,18 +43,18 @@ class Keymap:
     # create keymap xml file 
     def create(self):
 
-        # create root element
-        try:
-            elRoot = etree.Element('keymap')
-        except NameError:
-            pass
-        
-        # create sub element
-        elGlobal = etree.Element('global')
-        elRoot.append(elGlobal)
+        # create new xml document
+        doc = xml.Document();
 
-        elKeyboard = etree.Element('keyboard')
-        elGlobal.append(elKeyboard)
+        # add root element
+        elKeymap = doc.createElement('keymap')
+        doc.appendChild(elKeymap)
+
+        # create sub elements
+        elGlobal = doc.createElement('global')
+        elKeymap.appendChild(elGlobal)
+        elKeyboard = doc.createElement('keyboard')
+        elGlobal.appendChild(elKeyboard)
 
         # create sub element to keyboard for each key
         for item in self.keyActions:
@@ -66,23 +63,21 @@ class Keymap:
             parts = item['key'].split('+')
 
             # create key element
-            elKey = etree.Element(parts[-1])
+            elKey = doc.createElement(parts[-1])
+            elKeyboard.appendChild(elKey)
 
             # add mod attribute to key element
             if len(parts) > 1:
-                elKey.attrib['mod'] = ','.join(parts[:-1])
+                elKey.setAttribute('mod', ','.join(parts[:-1]))
 
             # add action content to key element
-            elKey.text = 'NotifyAll(service.pip, %s)' % item['action']
-
-            # add key element to keyboard
-            elKeyboard.append(elKey)
+            elKey.appendChild(doc.createTextNode('NotifyAll(service.pip, %s)' % item['action']))
 
         # create xml string
-        s = etree.tostring(elRoot, pretty_print=True)
+        s = doc.toprettyxml(indent="  ", newl="\n")
 
         # write strint to file
-        fobj = open(self.path + '/' + 'pipkeymap.xml', 'wb')
+        fobj = open(self.path + '/' + 'pipkeymap.xml', 'w')
         fobj.write(s)
         fobj.close()
 
