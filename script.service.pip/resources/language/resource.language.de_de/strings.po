@@ -101,8 +101,8 @@ msgid "Key mapping"
 msgstr "Key Mapping"
 
 msgctxt "#32021"
-msgid "Usage: '[ctrl+][shift+][longpress+]key'"
-msgstr "Verwendung: '[ctrl+][shift+][longpress+]key'"
+msgid "Usage: '[ctrl+][shift+]key (requires restart)'"
+msgstr "Verwendung: '[ctrl+][shift+]key (benötigt Neustart)'"
 
 msgctxt "#32022"
 msgid "Enable/disable PIP"

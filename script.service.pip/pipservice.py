@@ -249,7 +249,7 @@ if __name__ == '__main__':
                     ffmpeg.stop()
 
                     # "wait" image
-                    pip.set_channel(m3u.get_channel_name(), channelnumber - 1)
+                    pip.set_channel(m3u.get_channel_name(), channelnumber + 1)
                     pip.show_image(True)
 
                     # start start

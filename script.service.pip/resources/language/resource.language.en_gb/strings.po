@@ -101,7 +101,7 @@ msgid "Key mapping"
 msgstr ""
 
 msgctxt "#32021"
-msgid "Usage: '[ctrl+][shift+][longpress+]key'"
+msgid "Usage: '[ctrl+][shift+]key' (requires restart)"
 msgstr ""
 
 msgctxt "#32022"
