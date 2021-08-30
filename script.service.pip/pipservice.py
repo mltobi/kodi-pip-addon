@@ -212,7 +212,7 @@ if __name__ == '__main__':
                     # start picture in picture capturing using ffmpeg
                     url, channelname = m3u.get_url()
                     channelnumber = m3u.channel2number[channelname]
-                    pip.set_channel_number(channelnumber)
+                    pip.set_channel(channelname, channelnumber)
 
                     if url == "":
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 2000, __icon__))
@@ -242,18 +242,19 @@ if __name__ == '__main__':
                 if (channelnumber + 1) in m3u.number2url:
                     url = m3u.number2url[channelnumber + 1]
 
+                    # set new channel name depending on increased channel number
+                    m3u.set_channel_name(channelnumber + 1)
+
                     # restart picture in picture capturing
                     ffmpeg.stop()
 
                     # "wait" image
-                    pip.set_channel_number(channelnumber - 1)
+                    pip.set_channel(m3u.get_channel_name(), channelnumber - 1)
                     pip.show_image(True)
 
                     # start start
                     ffmpeg.start(url, False)
 
-                    # set new channel name depending on increased channel number
-                    m3u.set_channel_name(channelnumber + 1)
 
 
             if monitor.get_channel_down_status():
@@ -264,18 +265,18 @@ if __name__ == '__main__':
                 if (channelnumber - 1) in m3u.number2url:
                     url = m3u.number2url[channelnumber - 1]
 
+                    # set new channel name depending on decreased channel number
+                    m3u.set_channel_name(channelnumber - 1)
+
                     # restart picture in picture capturing
                     ffmpeg.stop()
 
                     # "wait" image
-                    pip.set_channel_number(channelnumber - 1)
+                    pip.set_channel(m3u.get_channel_name(), channelnumber - 1)
                     pip.show_image(True)
 
                     # start ffmpeg
                     ffmpeg.start(url, False)
-
-                    # set new channel name depending on decreased channel number
-                    m3u.set_channel_name(channelnumber - 1)
 
 
             if ffmpeg.started() and not ffmpeg.running():

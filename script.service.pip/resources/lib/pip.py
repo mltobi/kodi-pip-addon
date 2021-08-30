@@ -48,6 +48,7 @@ class Pip:
         self.img = False
         self.labelHdl = None
         self.channelnumber = 1
+        self.channelname = ""
 
         self.x = 20
         self.y = 110
@@ -166,7 +167,7 @@ class Pip:
             self.winHdl.addControl(self.imgHdl)
 
             # add channel number label control to windows handle
-            self.labelHdl = xbmcgui.ControlLabel(self.x + 5, self.y, 125, 125, str(self.channelnumber))
+            self.labelHdl = xbmcgui.ControlLabel(self.x + 5, self.y, self.x + self.w - 40, 125, "%s - %s" % (self.channelnumber, self.channelname))
             self.winHdl.addControl(self.labelHdl)
 
             self.img = True
@@ -187,7 +188,7 @@ class Pip:
         if winId == self.winId and os.path.exists(self.imagefile):
 
             # set channel number label text
-            self.labelHdl.setLabel(str(self.channelnumber))
+            self.labelHdl.setLabel("%s - %s" % (self.channelnumber, self.channelname))
 
             # add to latest captured image a unique id in order to force reload the image via setImage function
             olduuidfile = self.uuidfile
@@ -218,5 +219,6 @@ class Pip:
 
 
     # set channel number
-    def set_channel_number(self, number):
-        self.channelnumber = number
+    def set_channel(self, name, number):
+        self.channelname = name
+        self.channelnumber = str(number)
