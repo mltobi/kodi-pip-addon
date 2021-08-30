@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import xbmc
+
 import json
 import urllib
 from urllib.request import Request

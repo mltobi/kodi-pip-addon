@@ -20,6 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import xbmc
 import xbmcgui
+import xbmcaddon
+import xbmcvfs
+
 import os
 import shutil
 import uuid
@@ -33,7 +36,7 @@ controls display of picture-in-picture
 class Pip:
 
     # constructor
-    def __init__(self, imagefilename, ):
+    def __init__(self, imagefilename):
 
         self.imagefilename = imagefilename
         self.imagefile = "/dev/shm/" + imagefilename
@@ -118,44 +121,70 @@ class Pip:
         return self.settingsValid
 
 
-    # display picture-in-picture image if avaiable
-    def show_image(self):
+    # initial image control 
+    def init_image(self):
 
         # get current windows ID
         winId = xbmcgui.getCurrentWindowId()
 
+        # copy or overwrite keymap xml
+        wait4pipimage = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resources/data/wait4pip.png"
+        shutil.copy(wait4pipimage, self.imagefile)
+
         # if video fullscreen window ID
         if winId == self.winId and os.path.exists(self.imagefile):
-            if not self.img:
-                # define dimensions
-                wwin = self.winHdl.getWidth()
-                hwin = self.winHdl.getHeight()
-                xbmc.log("[pip-service] windows size: %d x %d" % (wwin, hwin), xbmc.LOGINFO)
-                self.w = self.settings['width']
-                self.h = self.settings['height']
-                if self.settings['left']:
-                    self.x = self.settings['xgap']
-                else:
-                    self.x = wwin - self.settings['xgap'] - self.w
-                if self.settings['top']:
-                    self.y = self.settings['ygap']
-                else:
-                    self.y = hwin - self.settings['ygap'] - self.h
-                xbmc.log("[pip-service] x and y: %d x %d" % (self.x, self.y), xbmc.LOGINFO)
+            
+            # remove control before new creation
+            if self.img:
+                self.winHdl.removeControl(self.imgHdl)
+                del self.imgHdl
+                self.winHdl.removeControl(self.labelHdl)
+                del self.labelHdl
+                self.img = False
 
-                # create image control
-                self.imgHdl = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
-                self.imgHdl.setAnimations([('visible', 'effect=fade end=100 time=300 delay=300',)])
+            # define dimensions
+            wwin = self.winHdl.getWidth()
+            hwin = self.winHdl.getHeight()
+            xbmc.log("[pip-service] windows size: %d x %d" % (wwin, hwin), xbmc.LOGINFO)
+            self.w = self.settings['width']
+            self.h = self.settings['height']
+            if self.settings['left']:
+                self.x = self.settings['xgap']
+            else:
+                self.x = wwin - self.settings['xgap'] - self.w
+            if self.settings['top']:
+                self.y = self.settings['ygap']
+            else:
+                self.y = hwin - self.settings['ygap'] - self.h
+            xbmc.log("[pip-service] x and y: %d x %d" % (self.x, self.y), xbmc.LOGINFO)
 
-                # add image control to windows handle
-                self.winHdl.addControl(self.imgHdl)
+            # create image control
+            self.imgHdl = xbmcgui.ControlImage(self.x, self.y, self.w, self.h, self.imagefile)
+            self.imgHdl.setAnimations([('visible', 'effect=fade end=100 time=300 delay=300',)])
 
-                # add channel number label control to windows handle
-                self.labelHdl = xbmcgui.ControlLabel(self.x + 5, self.y, 125, 125, str(self.channelnumber))
-                self.winHdl.addControl(self.labelHdl)
+            # add image control to windows handle
+            self.winHdl.addControl(self.imgHdl)
 
-                self.img = True
+            # add channel number label control to windows handle
+            self.labelHdl = xbmcgui.ControlLabel(self.x + 5, self.y, 125, 125, str(self.channelnumber))
+            self.winHdl.addControl(self.labelHdl)
 
+            self.img = True
+
+
+    # display picture-in-picture image if avaiable
+    def show_image(self, waitimg):
+
+        # get current windows ID
+        winId = xbmcgui.getCurrentWindowId()
+
+        if waitimg:
+            # copy or overwrite keymap xml
+            wait4pipimage = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path')) + "resources/data/wait4pip.png"
+            shutil.copy(wait4pipimage, self.imagefile)
+
+        # if video fullscreen window ID
+        if winId == self.winId and os.path.exists(self.imagefile):
 
             # set channel number label text
             self.labelHdl.setLabel(str(self.channelnumber))
@@ -178,8 +207,8 @@ class Pip:
                     os.remove(olduuidfile)
 
 
+    # hide image by removeing controls
     def hide_image(self):
-        # remove handle if windows ID has changed
         if self.img:
             self.winHdl.removeControl(self.imgHdl)
             del self.imgHdl
@@ -188,5 +217,6 @@ class Pip:
             self.img = False
 
 
+    # set channel number
     def set_channel_number(self, number):
         self.channelnumber = number

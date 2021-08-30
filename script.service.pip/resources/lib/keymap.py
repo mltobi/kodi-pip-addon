@@ -18,8 +18,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
 
-from lxml import etree
-
+try:
+    from lxml import etree
+except ImportError:
+    pass
 
 '''
 Class Keymap
@@ -45,8 +47,11 @@ class Keymap:
     def create(self):
 
         # create root element
-        elRoot = etree.Element('keymap')
-
+        try:
+            elRoot = etree.Element('keymap')
+        except NameError:
+            pass
+        
         # create sub element
         elGlobal = etree.Element('global')
         elRoot.append(elGlobal)

@@ -190,6 +190,9 @@ if __name__ == '__main__':
                 m3u.download()
                 m3u.parse()
 
+                # reinit image control
+                pip.init_image()
+
                 # update ffmpeg settings
                 ffmpeg.update_settings( settings['tmpfolder'],
                                         settings['username'],
@@ -215,6 +218,7 @@ if __name__ == '__main__':
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 2000, __icon__))
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Not started ...", 2000, __icon__))
                     else:
+                        pip.init_image()
                         ffmpeg.start(url, False)
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
                         xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
@@ -240,9 +244,15 @@ if __name__ == '__main__':
 
                     # restart picture in picture capturing
                     ffmpeg.stop()
+
+                    # "wait" image
+                    pip.set_channel_number(channelnumber - 1)
+                    pip.show_image(True)
+
+                    # start start
                     ffmpeg.start(url, False)
 
-                    pip.set_channel_number(channelnumber + 1)
+                    # set new channel name depending on increased channel number
                     m3u.set_channel_name(channelnumber + 1)
 
 
@@ -256,9 +266,15 @@ if __name__ == '__main__':
 
                     # restart picture in picture capturing
                     ffmpeg.stop()
+
+                    # "wait" image
+                    pip.set_channel_number(channelnumber - 1)
+                    pip.show_image(True)
+
+                    # start ffmpeg
                     ffmpeg.start(url, False)
 
-                    pip.set_channel_number(channelnumber - 1)
+                    # set new channel name depending on decreased channel number
                     m3u.set_channel_name(channelnumber - 1)
 
 
@@ -267,9 +283,10 @@ if __name__ == '__main__':
                 ffmpeg.start(url, True)
                 xbmc.log("[pip-service] re-started ffmpeg process for %s." % url, xbmc.LOGWARNING)
 
+
             if ffmpeg.started():
                 # display picture-in-picture if a capture image from ffmpeg process is available
-                pip.show_image()
+                pip.show_image(False)
             else:
                 pip.hide_image()
 
