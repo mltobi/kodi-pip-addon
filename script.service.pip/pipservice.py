@@ -123,6 +123,8 @@ Main function
 '''
 if __name__ == '__main__':
 
+    upDownTimer = 0
+
     # init pip
     xbmc.log('[pip-service] Starting', xbmc.LOGINFO)
     pip = Pip(imagefilename)
@@ -235,6 +237,8 @@ if __name__ == '__main__':
 
 
             if monitor.get_channel_up_status():
+                upDownTimer = int(100 / settings['fps'])
+
                 # switch one channel up of pip channel
                 channelname = m3u.get_channel_name()
                 channelnumber = m3u.channel2number[channelname]
@@ -252,12 +256,11 @@ if __name__ == '__main__':
                     pip.set_channel(m3u.get_channel_name(), channelnumber + 1)
                     pip.show_image(True)
 
-                    # start start
-                    ffmpeg.start(url, False)
-
 
 
             if monitor.get_channel_down_status():
+                upDownTimer = int(100 / settings['fps'])
+
                 # switch one channel down of pip channel
                 channelname = m3u.get_channel_name()
                 channelnumber = m3u.channel2number[channelname]
@@ -275,8 +278,20 @@ if __name__ == '__main__':
                     pip.set_channel(m3u.get_channel_name(), channelnumber - 1)
                     pip.show_image(True)
 
-                    # start ffmpeg
-                    ffmpeg.start(url, False)
+
+            # decrease channel up/down timer and limit it to 0
+            upDownTimer = upDownTimer - 1
+            if upDownTimer <= 0:
+                upDownTimer = 0
+            else:
+                xbmc.log("[pip-service] updown timer %d." % upDownTimer, xbmc.LOGINFO)
+
+
+            # if up/down timer has reached "1" start ffmpeg with latest requested url
+            if upDownTimer == 1:
+                # start start
+                ffmpeg.start(url, False)
+                xbmc.log("[pip-service] FFMPEOG starte. %s " % url, xbmc.LOGINFO)
 
 
             if ffmpeg.started() and not ffmpeg.running():
@@ -288,7 +303,7 @@ if __name__ == '__main__':
             if ffmpeg.started():
                 # display picture-in-picture if a capture image from ffmpeg process is available
                 pip.show_image(False)
-            else:
+            elif upDownTimer <= 0:
                 pip.hide_image()
 
         # stop ffmpeg process if running

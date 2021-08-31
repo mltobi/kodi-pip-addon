@@ -40,7 +40,7 @@ class Keymap:
             {'action': 'channel_down_pip', 'key': keyDown}]
 
 
-    # create keymap xml file 
+    # create keymap xml file
     def create(self):
 
         # create new xml document
@@ -58,7 +58,7 @@ class Keymap:
 
         # create sub element to keyboard for each key
         for item in self.keyActions:
-            
+
             # split setting string
             parts = item['key'].split('+')
 

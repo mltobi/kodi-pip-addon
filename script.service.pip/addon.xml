@@ -14,53 +14,50 @@
 		<license>GNU GENERAL PUBLIC LICENSE Version 2</license>
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
-Vx.y.z ()
-- Use ramdisk /dev/shm as temporary folder by default #3
-  - If /dev/shm is no accessible or a non-Linux platform is detected user have to create a ramdisk manually.
-- Added channel number to displayed pip image #4
-- Added more key shortcuts #5
-  - ctrl+shift+p: toggle pip
-  - ctrl+shift+up: on channel up for displayed pip
-  - ctrl+shift+down: on channel down for displayed pip
-  - ctrl+shift+b: back to pip channel and hide pip
+V1.1.0 (2021-08-30)
+- Added "wait"-image that is displayed while ffmpeg starts to capture the stream
+- Used ramdisk /dev/shm as temporary folder by default #3
+  - If /dev/shm is no accessible or a non-Linux platform is detected user has to create and configure a folder on a ramdisk manually!
+- Added channel number and channel name to a displayed pip image #4
+- Made key shortcuts configurable (toggle, back to channel, channel up and channel down) #5
 
-V1.0.1 (2021-08-22)
+V1.0.1 (2021-08-22) - Released
 - Added important hint on ramdisk usage for temp folder
 - Fixed usage of height settings and added settings updates using monitor class
 - Fixed several spelling errors in en and de language
 - Added test if ffmpeg executable is available
 - Added try/catch to avoid exception if thumb.png does not exist, belongs to #2
 
-V1.0.0 (2021-08-21)
-- first release of PIP addon
-- fixed installation of keymap file
-- fixes to prepare installation using a repository
-- renumbered already used version numbers to numbers lower than V1.0.0 in order to have V1.0.0 free for the 1st release
+V1.0.0 (2021-08-21) - Released
+- First release of PIP addon
+- Fixed installation of keymap file
+- Fixes to prepare installation using a repository
+- Renumbered already used version numbers to numbers lower than V1.0.0 in order to have V1.0.0 free for the 1st release
 
-v0.5.1 (2021-08-16)
-- fixed ffmpeg capture settings for raspberry pi 4 and libreelec in order to avoid capturing broken images
+V0.5.1 (2021-08-16)
+- Fixed ffmpeg capture settings for raspberry pi 4 and libreelec in order to avoid capturing broken images
 
-v0.5.0 (2021-08-09)
-- improved image handling by using unique filename in order to force a reload by setImage() function
-- framerate up to 25 fps possible (but with high CPU load!)
+V0.5.0 (2021-08-09)
+- Improved image handling by using unique filename in order to force a reload by setImage() function
+- Increased framerate up to 25 fps (but with high CPU load!)
 
-v0.4.0 (2021-08-03)
-- replace "curl" by a native python implementation using urllib
-- added error handling for tvheadend connection
-- added error handling for m3u file format
+V0.4.0 (2021-08-03)
+- Replaced "curl" by a native python implementation using urllib
+- Added error handling for tvheadend connection
+- Added error handling for m3u file format
 
-v0.3.0 (2021-07-25)
-- put picture-in-picture handling in separate class
-- added setting "frames per seconds"
+V0.3.0 (2021-07-25)
+- Put picture-in-picture handling in separate class
+- Added setting "frames per seconds"
 
-v0.2.0 (2021-07-23)
-- complete refactor "autostart.h", "pipffmepg.py" and "script.picture.pip" not longer required
-- only one service addons necessary
-- keymap uses now notifiyAll instead of a runScript call
-- prepared to run not only on librelec ... test on ubuntu installation passed
+V0.2.0 (2021-07-23)
+- Complete refactor "autostart.h", "pipffmepg.py" and "script.picture.pip" not longer required
+- Only one service addons necessary
+- Keymap uses now notifiyAll instead of a runScript call
+- Prepared to run not only on librelec ... test on ubuntu installation passed
 
-v0.1.0 (2021-07-17)
-- inital version</news>
+V0.1.0 (2021-07-17)
+- Inital version</news>
 		<assets>
 		    	<icon>resources/icon.png</icon>
 			<screenshot>resources/screenshot-01.png</screenshot>

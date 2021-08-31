@@ -46,7 +46,8 @@ class Pip:
         self.settings = {}
         self.imgHdl = None
         self.img = False
-        self.labelHdl = None
+        self.lblNbrHdl = None
+        self.lblNameHdl = None
         self.channelnumber = 1
         self.channelname = ""
 
@@ -94,7 +95,7 @@ class Pip:
         if self.settings['tmpfolder'].replace(" ", "") == "":
 
             if platform.system() == "Linux":
-                xbmc.log("[pip-service] Detected Linux platform", xbmc.LOGDEBUG)    
+                xbmc.log("[pip-service] Detected Linux platform", xbmc.LOGDEBUG)
                 # test if /dev/shm is available and accessible
                 tmpfolder = "/dev/shm"
                 try:
@@ -103,12 +104,12 @@ class Pip:
                     self.settings['tmpfolder'] = "/dev/shm"
                     self.settingsValid = True
                 except IOError:
-                    xbmc.log("[pip-service] Folder '%s' is not usable on detected Linux platform. Please define a ramdisk folder manually via addon configuration." % tmpfolder, xbmc.LOGERROR)    
+                    xbmc.log("[pip-service] Folder '%s' is not usable on detected Linux platform. Please define a ramdisk folder manually via addon configuration." % tmpfolder, xbmc.LOGERROR)
                     self.settingsValid = False
 
             if platform.system() == "Windows":
-                xbmc.log("[pip-service] Detected Windows platform", xbmc.LOGDEBUG)    
-                xbmc.log("[pip-service] Windows platform does not provide a standard ramdisk. Please create a ramdisk and define the path to it manually via addon configuration." % tmpfolder, xbmc.LOGERROR)    
+                xbmc.log("[pip-service] Detected Windows platform", xbmc.LOGDEBUG)
+                xbmc.log("[pip-service] Windows platform does not provide a standard ramdisk. Please create a ramdisk and define the path to it manually via addon configuration." % tmpfolder, xbmc.LOGERROR)
                 self.settingsValid = False
 
         self.imagefile = "%s/%s" % (self.settings['tmpfolder'], self.imagefilename)
@@ -122,7 +123,7 @@ class Pip:
         return self.settingsValid
 
 
-    # initial image control 
+    # initial image control
     def init_image(self):
 
         # get current windows ID
@@ -134,13 +135,15 @@ class Pip:
 
         # if video fullscreen window ID
         if winId == self.winId and os.path.exists(self.imagefile):
-            
+
             # remove control before new creation
             if self.img:
                 self.winHdl.removeControl(self.imgHdl)
                 del self.imgHdl
-                self.winHdl.removeControl(self.labelHdl)
-                del self.labelHdl
+                self.winHdl.removeControl(self.lblNbrHdl)
+                del self.lblNbrHdl
+                self.winHdl.removeControl(self.lblNameHdl)
+                del self.lblNameHdl
                 self.img = False
 
             # define dimensions
@@ -167,8 +170,12 @@ class Pip:
             self.winHdl.addControl(self.imgHdl)
 
             # add channel number label control to windows handle
-            self.labelHdl = xbmcgui.ControlLabel(self.x + 5, self.y, self.x + self.w - 40, 125, "%s - %s" % (self.channelnumber, self.channelname))
-            self.winHdl.addControl(self.labelHdl)
+            self.lblNbrHdl = xbmcgui.ControlLabel(self.x + 5, self.y, self.x + self.w - 40, 125, "%s" % (self.channelnumber))
+            self.winHdl.addControl(self.lblNbrHdl)
+
+            # add channel number label control to windows handle
+            self.lblNameHdl = xbmcgui.ControlLabel(self.x + 5, self.y + self.h, self.x + self.w - 40, 125, "%s" % (self.channelname), font='font10')
+            self.winHdl.addControl(self.lblNameHdl)
 
             self.img = True
 
@@ -188,7 +195,10 @@ class Pip:
         if winId == self.winId and os.path.exists(self.imagefile):
 
             # set channel number label text
-            self.labelHdl.setLabel("%s - %s" % (self.channelnumber, self.channelname))
+            self.lblNbrHdl.setLabel("%s" % (self.channelnumber))
+
+            # set channel number label text
+            self.lblNameHdl.setLabel("%s" % (self.channelname))
 
             # add to latest captured image a unique id in order to force reload the image via setImage function
             olduuidfile = self.uuidfile
@@ -213,8 +223,10 @@ class Pip:
         if self.img:
             self.winHdl.removeControl(self.imgHdl)
             del self.imgHdl
-            self.winHdl.removeControl(self.labelHdl)
-            del self.labelHdl
+            self.winHdl.removeControl(self.lblNbrHdl)
+            del self.lblNbrHdl
+            self.winHdl.removeControl(self.lblNameHdl)
+            del self.lblNameHdl
             self.img = False
 
 
