@@ -14,7 +14,7 @@
 		<license>GNU GENERAL PUBLIC LICENSE Version 2</license>
 		<source>https://github.com/mltobi/kodi-pip-addon</source>	
 		<news>
-V1.1.0 (2021-08-30)
+V1.1.0 (2021-08-30) - Released
 - Added "wait"-image that is displayed while ffmpeg starts to capture the stream
 - Used ramdisk /dev/shm as temporary folder by default #3
   - If /dev/shm is no accessible or a non-Linux platform is detected user has to create and configure a folder on a ramdisk manually!
