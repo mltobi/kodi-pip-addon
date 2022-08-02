@@ -222,7 +222,7 @@ if __name__ == '__main__':
                     else:
                         pip.init_image()
                         ffmpeg.start(url, False)
-                        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
+                        #xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
                         xbmc.log("[pip-service] started ffmpeg process.", xbmc.LOGDEBUG)
 
 
