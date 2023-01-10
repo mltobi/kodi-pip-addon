@@ -18,7 +18,7 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 
 ## Installation
 * use "repositor.mltobi" to install the addon:
-https://github.com/mltobi/repository.mltobi/archive/refs/tags/repository.mltobi-1.0.0.zip
+https://github.com/mltobi/repository.mltobi/archive/refs/tags/repository.mltobi-1.1.0.zip
 
 ## How it works
 
@@ -50,8 +50,8 @@ http://192.168.1.1:9981/stream/channelid/....?profile=pass
 
 ## Dependencies
 * kodi 19.x (matrix)
-* ffmpeg version 4.4+ (e.g. from Libreelec addon repo)
-* tvheadend server version 4.3+ with the possibiltiy of more parallel streams, e.g. via IPTV or more than two DVB inputs -> TV adapters
+* ffmpeg version 4.2.4+ (e.g. from Libreelec addon repo)
+* tvheadend server version 4.3+ with the possibiltiy of more parallel streams, e.g. via IPTV or more than one DVB inputs -> TV adapters
 
 
 ## Debugging / Logging
@@ -68,3 +68,7 @@ http://192.168.1.1:9981/stream/channelid/....?profile=pass
   * LibreELEC (community): nightly-20210524-40e1be9 (RPi4.arm)
   * kodi 19.1 (19.1.0) Git:20210524-eea10b669c
   * ffmpeg version 4.4
+* Raspberry Pi4
+  * LibreELEC (community): nightly-20221213-870117d (RPi4.arm)
+  * kodi 20.0rc1-Nexus (19.90.01)
+  * ffmpeg version 4.4.3
