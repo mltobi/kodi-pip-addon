@@ -17,8 +17,7 @@ PIP kodi addon provides a picture in picture feature for television channels fro
 * if another user defined key (shift+b) is pressed the picture in picture channel is hidden and the the player is switched back to this channel.
 
 ## Installation
-* use "repositor.mltobi" to install the addon:
-https://github.com/mltobi/repository.mltobi/archive/refs/tags/repository.mltobi-1.1.0.zip
+* see releases: https://github.com/mltobi/kodi-pip-addon/releases
 
 ## How it works
 
