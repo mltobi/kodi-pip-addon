@@ -96,7 +96,7 @@ msgctxt "#32050"
 msgid "Picture-in-Picture Service"
 msgstr "Bild-in-Bild Dienst"
 
-sgctxt "#32020"
+msgctxt "#32020"
 msgid "Key mapping"
 msgstr "Tastenzuordnung"
 
