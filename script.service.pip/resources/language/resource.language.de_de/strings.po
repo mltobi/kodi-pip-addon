@@ -119,3 +119,11 @@ msgstr "Kanal hoch schalten"
 msgctxt "#32025"
 msgid "Channel down"
 msgstr "Kanal runter schalten"
+
+msgctxt "#32030"
+msgid "Other preferences"
+msgstr "Sonstige Einstellungen"
+
+msgctxt "#32031"
+msgid "Startup delay before action [seconds]"
+msgstr "Start-Verzögerung [Sekunden]"

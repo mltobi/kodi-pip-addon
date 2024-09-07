@@ -153,6 +153,11 @@ if __name__ == '__main__':
 
     # start a xbmc monitor
     monitor = XbmcMonitor()
+    
+    # wait the delay time after startup
+    xbmc.log("[pip-service] Delay time before execution: %s seconds." % str(delay), xbmc.LOGDEBUG)
+    if monitor.waitForAbort(1 + delay):  # wait at least one second
+        return 0
 
     # init ffmpeg
     ffmpeg = Ffmpeg(imagefilename,
