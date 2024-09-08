@@ -218,13 +218,13 @@ if __name__ == '__main__':
                 else:
                     # start picture in picture capturing using ffmpeg
                     url, channelname = m3u.get_url()
-                    channelnumber = m3u.channel2number[channelname]
-                    pip.set_channel(channelname, channelnumber)
 
                     if url == "":
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "No URL found ...", 2000, __icon__))
                         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Not started ...", 2000, __icon__))
                     else:
+                        channelnumber = m3u.channel2number[channelname]
+                        pip.set_channel(channelname, channelnumber)
                         pip.init_image()
                         ffmpeg.start(url, False)
                         #xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, "Starting ...", 5000, __icon__))
