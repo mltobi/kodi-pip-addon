@@ -90,6 +90,7 @@ class Pip:
         self.settings['keyback'] = str(addon.getSetting('keyback'))
         self.settings['keyup'] = str(addon.getSetting('keyup'))
         self.settings['keydown'] = str(addon.getSetting('keydown'))
+        self.settings['delay'] = int(addon.getSetting('delay'))
 
         self.settingsValid = False
         if self.settings['tmpfolder'].replace(" ", "") == "":

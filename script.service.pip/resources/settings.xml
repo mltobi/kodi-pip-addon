@@ -29,4 +29,7 @@
         <setting label="32024" type="text" id="keyup" default="ctrl+shift+up"/>
         <setting label="32025" type="text" id="keydown" default="ctrl+shift+down"/>
     </category>
+    <category label="32030">
+        <setting label="32031" type="slider" id="delay" default="5" range="0,5,60"/>
+    </category>
 </settings>

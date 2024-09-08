@@ -119,3 +119,11 @@ msgstr ""
 msgctxt "#32025"
 msgid "Channel down"
 msgstr ""
+
+msgctxt "#32030"
+msgid "Other preferences"
+msgstr ""
+
+msgctxt "#32031"
+msgid "Startup delay before action [seconds]"
+msgstr ""

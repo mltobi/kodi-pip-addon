@@ -132,6 +132,14 @@ if __name__ == '__main__':
     # get settings
     settings = pip.get_settings(__addon__)
 
+    # start a xbmc monitor
+    monitor = XbmcMonitor()
+
+    # wait the delay time after startup
+    delaytime = settings['delay']
+    xbmc.log("[pip-service] Delay time before execution: %s seconds." % str(delaytime), xbmc.LOGDEBUG)
+    monitor.waitForAbort(1 + delaytime)  # wait at least one second
+
     # init keymap
     keymap = Keymap(xbmcvfs.translatePath("special://home/userdata/keymaps/"))
     keymap.update(settings['keytoggle'], settings['keyback'], settings['keyup'], settings['keydown'])
@@ -150,9 +158,6 @@ if __name__ == '__main__':
 
     # get all available channel ids
     m3u.get_channel_ids()
-
-    # start a xbmc monitor
-    monitor = XbmcMonitor()
 
     # init ffmpeg
     ffmpeg = Ffmpeg(imagefilename,
