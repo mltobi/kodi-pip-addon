@@ -234,55 +234,57 @@ if __name__ == '__main__':
             if monitor.get_channel_back_status():
                 # switch back to pip channel
                 channelname = m3u.get_channel_name()
-                m3u.switch_channel(channelname)
+                if channelname != "":
+                    m3u.switch_channel(channelname)
+                    m3u.reset_channel_name()
 
-                # stop picture in picture capturing
-                ffmpeg.stop()
-                xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
+                    # stop picture in picture capturing
+                    ffmpeg.stop()
+                    xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
 
 
             if monitor.get_channel_up_status():
-                upDownTimer = int(100 / settings['fps'])
-
                 # switch one channel up of pip channel
                 channelname = m3u.get_channel_name()
-                channelnumber = m3u.channel2number[channelname]
+                if channelname != "":
+                    channelnumber = m3u.channel2number[channelname]
 
-                if (channelnumber + 1) in m3u.number2url:
-                    url = m3u.number2url[channelnumber + 1]
+                    if (channelnumber + 1) in m3u.number2url:
+                        url = m3u.number2url[channelnumber + 1]
 
-                    # set new channel name depending on increased channel number
-                    m3u.set_channel_name(channelnumber + 1)
+                        # set new channel name depending on increased channel number
+                        m3u.set_channel_name(channelnumber + 1)
 
-                    # restart picture in picture capturing
-                    ffmpeg.stop()
+                        # restart picture in picture capturing
+                        ffmpeg.stop()
 
-                    # "wait" image
-                    pip.set_channel(m3u.get_channel_name(), channelnumber + 1)
-                    pip.show_image(True)
+                        # "wait" image
+                        pip.set_channel(m3u.get_channel_name(), channelnumber + 1)
+                        pip.show_image(True)
 
+                        upDownTimer = int(100 / settings['fps'])
 
 
             if monitor.get_channel_down_status():
-                upDownTimer = int(100 / settings['fps'])
-
                 # switch one channel down of pip channel
                 channelname = m3u.get_channel_name()
-                channelnumber = m3u.channel2number[channelname]
+                if channelname != "":                
+                    channelnumber = m3u.channel2number[channelname]
 
-                if (channelnumber - 1) in m3u.number2url:
-                    url = m3u.number2url[channelnumber - 1]
+                    if (channelnumber - 1) in m3u.number2url:
+                        url = m3u.number2url[channelnumber - 1]
 
-                    # set new channel name depending on decreased channel number
-                    m3u.set_channel_name(channelnumber - 1)
+                        # set new channel name depending on decreased channel number
+                        m3u.set_channel_name(channelnumber - 1)
 
-                    # restart picture in picture capturing
-                    ffmpeg.stop()
+                        # restart picture in picture capturing
+                        ffmpeg.stop()
 
-                    # "wait" image
-                    pip.set_channel(m3u.get_channel_name(), channelnumber - 1)
-                    pip.show_image(True)
+                        # "wait" image
+                        pip.set_channel(m3u.get_channel_name(), channelnumber - 1)
+                        pip.show_image(True)
 
+                        upDownTimer = int(100 / settings['fps'])
 
             # decrease channel up/down timer and limit it to 0
             upDownTimer = upDownTimer - 1
