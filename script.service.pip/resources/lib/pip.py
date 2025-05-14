@@ -209,7 +209,7 @@ class Pip:
 
                 # set new image file
                 self.imgHdl.setImage(self.uuidfile, useCache = False)
-            except FileNotFoundError:
+            except OSError:
                 pass
 
             # remove already set image file if it exists
