@@ -57,7 +57,8 @@ class Ffmpeg:
         try:
             process = subprocess.Popen( ['ffmpeg', '-version'],
                                         stderr=subprocess.PIPE,
-                                        stdout=subprocess.PIPE)
+                                        stdout=subprocess.PIPE,
+                                        creationflags=subprocess.CREATE_NO_WINDOW)
             process.communicate()
             exit_code = process.wait()
             if exit_code == 0:
@@ -129,9 +130,9 @@ class Ffmpeg:
             # create and run ffmpeg process with the defined command
             self.proc = subprocess.Popen(cmd,
               stdout = open('%s/pipffmpeg_stdout.log' % self.tmpfolder, 'w'),
-              stderr = open('%s/pipffmpeg_stderr.log' % self.tmpfolder, 'a'))
+              stderr = open('%s/pipffmpeg_stderr.log' % self.tmpfolder, 'a'),
+              creationflags = subprocess.CREATE_NO_WINDOW)
             self.flgStarted = True
 
             # remember current link in order to wait for next new channel request
             self.urlold = url
-
