@@ -228,6 +228,11 @@ class Pip:
             self.winHdl.removeControl(self.lblNameHdl)
             del self.lblNameHdl
             self.img = False
+            
+        # remove last image file if it exists
+        if self.uuidfile != None:
+            if os.path.exists(self.uuidfile):
+                os.remove(self.uuidfile)
 
 
     # set channel number
