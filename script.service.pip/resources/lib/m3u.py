@@ -129,6 +129,9 @@ class M3u:
     def set_channel_name(self, channelnumber):
         self.channel = self.number2channel[channelnumber]
 
+    # reset saved pip channel name
+    def reset_channel_name(self):
+        self.channel = ""
 
     # get current active channel the url of it
     def get_url(self):

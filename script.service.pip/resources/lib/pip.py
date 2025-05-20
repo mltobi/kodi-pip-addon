@@ -92,8 +92,9 @@ class Pip:
         self.settings['keydown'] = str(addon.getSetting('keydown'))
         self.settings['delay'] = int(addon.getSetting('delay'))
 
-        self.settingsValid = False
+        self.settingsValid = True
         if self.settings['tmpfolder'].replace(" ", "") == "":
+            self.settingsValid = False
 
             if platform.system() == "Linux":
                 xbmc.log("[pip-service] Detected Linux platform", xbmc.LOGDEBUG)
@@ -106,12 +107,10 @@ class Pip:
                     self.settingsValid = True
                 except IOError:
                     xbmc.log("[pip-service] Folder '%s' is not usable on detected Linux platform. Please define a ramdisk folder manually via addon configuration." % tmpfolder, xbmc.LOGERROR)
-                    self.settingsValid = False
 
             if platform.system() == "Windows":
                 xbmc.log("[pip-service] Detected Windows platform", xbmc.LOGDEBUG)
                 xbmc.log("[pip-service] Windows platform does not provide a standard ramdisk. Please create a ramdisk and define the path to it manually via addon configuration." % tmpfolder, xbmc.LOGERROR)
-                self.settingsValid = False
 
         self.imagefile = "%s/%s" % (self.settings['tmpfolder'], self.imagefilename)
 
@@ -210,7 +209,7 @@ class Pip:
 
                 # set new image file
                 self.imgHdl.setImage(self.uuidfile, useCache = False)
-            except FileNotFoundError:
+            except OSError:
                 pass
 
             # remove already set image file if it exists
@@ -229,6 +228,11 @@ class Pip:
             self.winHdl.removeControl(self.lblNameHdl)
             del self.lblNameHdl
             self.img = False
+            
+        # remove last image file if it exists
+        if self.uuidfile != None:
+            if os.path.exists(self.uuidfile):
+                os.remove(self.uuidfile)
 
 
     # set channel number
