@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 import platform
 import subprocess
-
+import xbmc
 
 '''
 Class Ffmpeg
@@ -30,8 +30,8 @@ controls ffmpeg process
 class Ffmpeg:
 
     # constructor
-    def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions, width):
-        self.update_settings(tmpfolder, username, password, fps, addoptions, width)
+    def __init__(self, imagefilename, tmpfolder, username, password, fps, addoptions, width, quality):
+        self.update_settings(tmpfolder, username, password, fps, addoptions, width, quality)
         self.imagefile = tmpfolder + "/" + imagefilename
         self.proc = ""
         self.urlold = ""
@@ -43,13 +43,14 @@ class Ffmpeg:
 
 
     # update settings
-    def update_settings(self, tmpfolder, username, password, fps, addoptions, width):
+    def update_settings(self, tmpfolder, username, password, fps, addoptions, width, quality):
         self.tmpfolder = tmpfolder
         self.username = username
         self.password = password
         self.fps = fps
         self.addopts = addoptions
         self.width = width
+        self.quality = quality
 
 
     # test if ffmpeg is available
@@ -110,6 +111,8 @@ class Ffmpeg:
             self.stop()
 
             # create ffmpeg command to capture very second a new image from the IPTV url
+            quality = 31 - (3 * self.quality) // 10 # transform value given in percent to a range of 1..31 and reverse it - ffmpeg interprets smaller values as better quality
+            xbmc.log("[pip-service] Thumbnail quality: %d%% -> %d" % (self.quality, quality), xbmc.LOGDEBUG)
             cmd = ['ffmpeg',
                    '-nostdin',
                    '-i', urlauth,
@@ -117,7 +120,7 @@ class Ffmpeg:
                    '-ss', '00:00:08.000',
                    '-f', 'image2',
                    '-vf', 'fps=%d,scale=%d:-1' % (self.fps, self.width),
-                   '-qscale:v', '10',
+                   '-qscale:v', '%d' % (quality),
                    '-y',
                    '-update', 'true',
                    '-vcodec', 'mjpeg',
