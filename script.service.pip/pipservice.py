@@ -52,6 +52,7 @@ class XbmcMonitor( xbmc.Monitor ):
         self.channeldown = False
         self.channelback = False
         self.changed = False
+        self.playbackstopped = False
 
 
     # get toggle status
@@ -82,6 +83,13 @@ class XbmcMonitor( xbmc.Monitor ):
         return ret
 
 
+    # get playback stopped status
+    def get_playback_stopped_status(self):
+        ret = self.playbackstopped
+        self.playbackstopped = False
+        return ret
+
+
     # called on a notification
     def onNotification(self, sender, method, data):
 
@@ -89,7 +97,7 @@ class XbmcMonitor( xbmc.Monitor ):
             xbmc.log("[pip-service] key press detected!", xbmc.LOGINFO)
             if method == "Other.toggle_pip":
                 xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
-                self.toggled= True
+                self.toggled = True
 
             if method == "Other.channel_up_pip":
                 xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
@@ -97,11 +105,15 @@ class XbmcMonitor( xbmc.Monitor ):
 
             if method == "Other.channel_down_pip":
                 xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
-                self.channeldown= True
+                self.channeldown = True
 
             if method == "Other.channel_back_pip":
-                xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGINFO)
-                self.channelback= True
+                xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
+                self.channelback = True
+
+        if sender == "xbmc" and method == "Player.OnStop":
+            xbmc.log("[pip-service] via notifiyAll: sender=%s, method=%s, data=%s" % (str(sender), str(method), str(data)), xbmc.LOGDEBUG)
+            self.playbackstopped = True
 
 
     # get settings changed status
@@ -285,6 +297,14 @@ if __name__ == '__main__':
                         pip.show_image(True)
 
                         upDownTimer = int(100 / settings['fps'])
+
+
+            if monitor.get_playback_stopped_status():
+                if ffmpeg.started():
+                    # stop picture in picture capturing
+                    ffmpeg.stop()
+                    xbmc.log("[pip-service] stopped ffmpeg process.", xbmc.LOGDEBUG)
+
 
             # decrease channel up/down timer and limit it to 0
             upDownTimer = upDownTimer - 1
