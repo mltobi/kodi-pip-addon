@@ -178,7 +178,8 @@ if __name__ == '__main__':
                     settings['password'],
                     settings['fps'],
                     settings['ffmpegopts'],
-                    settings['width'])
+                    settings['width'],
+                    settings['quality'])
 
     # test if ffmpeg executable is available
     if ffmpeg.test() and pip.get_settings_status():
@@ -218,7 +219,8 @@ if __name__ == '__main__':
                                         settings['password'],
                                         settings['fps'],
                                         settings['ffmpegopts'],
-                                        settings['width'])
+                                        settings['width'],
+                                        settings['quality'])
 
 
             if monitor.get_toggle_status():

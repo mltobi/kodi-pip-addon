@@ -92,6 +92,10 @@ msgctxt "#32016"
 msgid "Additional command line options"
 msgstr "Zusätzliche Kommandozeilen-Optionen"
 
+msgctxt "#32017"
+msgid "Picture-in-Picture quality"
+msgstr "Bild-in-Bild Qualität"
+
 msgctxt "#32050"
 msgid "Picture-in-Picture Service"
 msgstr "Bild-in-Bild Dienst"

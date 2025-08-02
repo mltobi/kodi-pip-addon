@@ -79,6 +79,7 @@ class Pip:
         self.settings['width'] = int(addon.getSetting('width'))
         self.settings['height'] = int(addon.getSetting('height'))
         self.settings['fps'] = int(addon.getSetting('fps'))
+        self.settings['quality'] = int(addon.getSetting('quality'))
         self.settings['ipaddress'] = str(addon.getSetting('ipaddress'))
         self.settings['port'] = str(addon.getSetting('port'))
         self.settings['username'] = str(addon.getSetting('username'))

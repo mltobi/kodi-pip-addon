@@ -92,6 +92,10 @@ msgctxt "#32016"
 msgid "Additional command line options"
 msgstr ""
 
+msgctxt "#32017"
+msgid "Picture-in-Picture quality"
+msgstr ""
+
 msgctxt "#32050"
 msgid "Picture-in-Picture service"
 msgstr ""
